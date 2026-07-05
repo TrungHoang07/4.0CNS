@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ôn tập giữa kỳ · Công nghệ số &amp; AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #070b14;
+    --bg-grid: #0b1020;
+    --panel: #10182b;
+    --panel-2: #131d33;
+    --border: #24304d;
+    --border-soft: #1a2438;
+    --text: #eaf0ff;
+    --text-dim: #93a2c2;
+    --text-faint: #5d6a8c;
+    --cyan: #35e2e2;
+    --violet: #9b7bff;
+    --pink: #ff6fb0;
+    --green: #3ddc97;
+    --red: #ff6b6b;
+    --amber: #ffc75a;
+    --grad-1: linear-gradient(135deg, #35e2e2 0%, #9b7bff 100%);
+    --grad-2: linear-gradient(135deg, #9b7bff 0%, #ff6fb0 100%);
+    --shadow-glow: 0 0 40px rgba(53,226,226,0.08);
+    --font-display: 'Space Grotesk', 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0; min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(53,226,226,0.08), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(155,123,255,0.10), transparent 45%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* subtle tech grid overlay */
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 42px 42px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  }
+
+  .wrap{ max-width: 900px; margin: 0 auto; padding: 20px 18px 90px; position:relative; z-index:1; }
+
+  /* ============ HEADER / NAV ============ */
+  header.top{ padding: 18px 0 10px; }
+  .brand{ display:flex; align-items:center; gap:12px; margin-bottom:4px; }
+  .brand .dot{ width:10px; height:10px; border-radius:50%; background: var(--grad-1); box-shadow: 0 0 12px var(--cyan); flex-shrink:0; }
+  .brand h1{
+    font-family: var(--font-display); font-size: 22px; font-weight:700; margin:0;
+    letter-spacing: -0.01em;
+  }
+  .brand h1 span{ color: var(--cyan); }
+  .subtitle{ color: var(--text-dim); font-size: 13.5px; margin: 2px 0 18px 22px; }
+
+  nav.tabs{
+    display:flex; gap:6px; background: var(--panel); border:1px solid var(--border-soft);
+    padding: 5px; border-radius: 14px; margin-bottom: 22px;
+  }
+  nav.tabs button{
+    flex:1; background:transparent; border:none; color: var(--text-dim);
+    font-family: var(--font-body); font-weight:600; font-size: 13.5px;
+    padding: 10px 8px; border-radius: 10px; cursor:pointer; transition: all .2s;
+  }
+  nav.tabs button.active{ background: var(--grad-1); color:#04121a; box-shadow: 0 4px 16px rgba(53,226,226,0.25); }
+  nav.tabs button:not(.active):hover{ color: var(--text); background: rgba(255,255,255,0.04); }
+
+  .view{ display:none; }
+  .view.active{ display:block; animation: fadein .35s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ============ CARD BASE ============ */
+  .card{
+    background: var(--panel); border:1px solid var(--border-soft); border-radius:18px;
+    padding: 22px; margin-bottom:18px; box-shadow: var(--shadow-glow);
+  }
+
+  /* ============ COUNTDOWN ============ */
+  .countdown-card{
+    background: linear-gradient(160deg, var(--panel-2), var(--panel));
+    border:1px solid var(--border); border-radius:20px; padding: 24px 22px;
+    margin-bottom: 20px; position:relative; overflow:hidden;
+  }
+  .countdown-card::after{
+    content:""; position:absolute; top:-60%; right:-20%; width:280px; height:280px;
+    background: radial-gradient(circle, rgba(155,123,255,0.18), transparent 70%);
+    pointer-events:none;
+  }
+  .cd-label{
+    display:flex; align-items:center; gap:8px; font-size:12.5px; color: var(--text-dim);
+    text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-bottom:14px;
+  }
+  .cd-label .pulse{ width:7px; height:7px; border-radius:50%; background: var(--green); box-shadow:0 0 8px var(--green); animation: blink 1.6s infinite; }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+  .cd-grid{ display:grid; grid-template-columns: repeat(4,1fr); gap:10px; }
+  .cd-box{ background: rgba(255,255,255,0.03); border:1px solid var(--border-soft); border-radius:14px; padding: 14px 6px; text-align:center; }
+  .cd-num{ font-family: var(--font-mono); font-size: clamp(24px,6vw,34px); font-weight:700; color:var(--text);
+    background: var(--grad-1); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .cd-unit{ font-size:11px; color:var(--text-faint); margin-top:4px; text-transform:uppercase; letter-spacing:.06em; }
+  .cd-target{ font-size:12.5px; color: var(--text-faint); margin-top:14px; text-align:center; }
+  .cd-target b{ color: var(--text-dim); }
+  .cd-done{ text-align:center; font-family: var(--font-display); font-size:18px; color: var(--amber); font-weight:700; }
+
+  /* ============ HOME STATS ============ */
+  .stat-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin: 4px 0 18px; }
+  .stat-box{ background: var(--panel-2); border:1px solid var(--border-soft); border-radius:14px; padding:16px 8px; text-align:center; }
+  .stat-box .num{ font-family: var(--font-mono); font-size:26px; font-weight:700; color: var(--cyan); }
+  .stat-box .lbl{ font-size:11.5px; color: var(--text-dim); margin-top:3px; }
+
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; margin: 6px 0 4px; }
+  .chip{
+    font-size:12px; padding:7px 13px; border-radius:999px; font-weight:600;
+    border:1px solid var(--border); color: var(--text-dim); background: rgba(255,255,255,0.02);
+  }
+  .chip.c1{ border-color:#2a6ee0aa; color:#7ab4ff; }
+  .chip.c2{ border-color:#2fae7aaa; color:#5fe3ae; }
+  .chip.c3{ border-color:#c65fd8aa; color:#e79dfa; }
+  .chip.c4{ border-color:#d0a020aa; color:#ffcf5c; }
+  .chip.c5{ border-color:#7b6fe0aa; color:#b3a6ff; }
+  .chip.c6{ border-color:#e05f6faa; color:#ff9aa6; }
+
+  h2.section-title{ font-family: var(--font-display); font-size:17px; font-weight:700; margin: 26px 0 12px; color:var(--text); display:flex; align-items:center; gap:8px;}
+  h2.section-title .n{ font-family:var(--font-mono); color:var(--cyan); font-size:14px; }
+
+  p.lead{ color: var(--text-dim); font-size: 14.5px; margin: 0 0 16px; }
+
+  button.btn-primary{
+    background: var(--grad-1); color:#04121a; border:none; border-radius:12px;
+    padding: 14px 20px; font-size:15px; font-weight:700; width:100%; cursor:pointer;
+    font-family: var(--font-body); transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 8px 24px rgba(53,226,226,0.18);
+  }
+  button.btn-primary:active{ transform: scale(0.98); }
+  button.btn-secondary{
+    background: transparent; color: var(--text); border:1.5px solid var(--border);
+    border-radius:12px; padding: 12px 18px; font-size:14px; font-weight:600; cursor:pointer;
+    width:100%; margin-top:10px; font-family: var(--font-body); transition: border-color .15s, color .15s;
+  }
+  button.btn-secondary:hover{ border-color: var(--cyan); color: var(--cyan); }
+
+  /* ============ THEORY VIEW ============ */
+  .chap{ background: var(--panel); border:1px solid var(--border-soft); border-radius:16px; margin-bottom:12px; overflow:hidden; }
+  .chap-head{
+    width:100%; background:transparent; border:none; cursor:pointer; display:flex; align-items:center; gap:14px;
+    padding: 16px 18px; text-align:left; font-family: var(--font-body);
+  }
+  .chap-num{ font-family: var(--font-mono); font-weight:700; color: var(--cyan); font-size:14px; background: rgba(53,226,226,0.08); padding: 4px 9px; border-radius:8px; }
+  .chap-title{ flex:1; font-weight:700; font-size:15px; color:var(--text); }
+  .hot-tag{ font-size:10.5px; color: var(--amber); font-weight:700; margin-left:6px; }
+  .chap-chevron{ color: var(--text-faint); transition: transform .25s; font-size:16px; }
+  .chap.open .chap-chevron{ transform: rotate(180deg); }
+  .chap-body{ max-height:0; overflow:hidden; transition: max-height .35s ease; padding: 0 18px; }
+  .chap.open .chap-body{ max-height: 4000px; padding: 0 18px 20px; }
+  .chap-body h4{ font-family: var(--font-display); font-size:14.5px; color: var(--violet); margin: 16px 0 8px; }
+  .chap-body h4:first-child{ margin-top:4px; }
+  .chap-body ul, .chap-body ol{ margin: 6px 0 6px 18px; padding:0; font-size:13.8px; color: var(--text); }
+  .chap-body li{ margin-bottom: 6px; }
+  .chap-body p{ font-size:13.8px; margin: 6px 0; }
+  .chap-body .note{ color: var(--text-dim); font-size:13px; }
+  .chap-body b{ color: var(--text); }
+  .chap-body code{ background: rgba(255,255,255,0.06); padding:2px 6px; border-radius:5px; font-family: var(--font-mono); font-size:12px; color: var(--cyan); }
+  .chap-body table{ width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+  .chap-body th{ text-align:left; color: var(--text-dim); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--border); font-size:11.5px; text-transform:uppercase; letter-spacing:.03em;}
+  .chap-body td{ padding:9px 10px; border-bottom:1px solid var(--border-soft); }
+  .chap-body tr:last-child td{ border-bottom:none; }
+
+  .tips-box{ background: linear-gradient(160deg, rgba(155,123,255,0.08), rgba(53,226,226,0.05)); border:1px solid var(--border); border-radius:16px; padding: 20px; margin-top:6px; }
+  .tips-box h4{ font-family: var(--font-display); color: var(--amber); margin:0 0 10px; font-size:15px; }
+  .tips-box ol{ margin: 0 0 0 18px; font-size:13.8px; }
+  .tips-box li{ margin-bottom:8px; }
+
+  /* ============ QUIZ SETUP ============ */
+  .scope-grid{ display:grid; grid-template-columns: repeat(2,1fr); gap:10px; margin: 10px 0 18px; }
+  .scope-chip{
+    background: var(--panel-2); border:1.5px solid var(--border-soft); border-radius:14px;
+    padding: 14px 10px; text-align:center; cursor:pointer; transition: all .15s; user-select:none;
+  }
+  .scope-chip .sc-name{ font-weight:700; font-size:13.5px; color:var(--text); }
+  .scope-chip .sc-count{ font-size:11px; color:var(--text-dim); margin-top:3px; }
+  .scope-chip.selected{ border-color: var(--cyan); background: rgba(53,226,226,0.08); box-shadow: 0 0 0 1px var(--cyan) inset; }
+  .scope-chip.selected .sc-name{ color: var(--cyan); }
+
+  .diff-row{ display:flex; gap:8px; margin: 4px 0 18px; flex-wrap:wrap; }
+  .diff-chip{
+    flex:1; min-width: 70px; background: var(--panel-2); border:1.5px solid var(--border-soft); border-radius:12px;
+    padding:10px 8px; text-align:center; cursor:pointer; font-size:12.5px; font-weight:600; color:var(--text-dim); transition: all .15s;
+  }
+  .diff-chip.selected{ border-color: var(--violet); color: var(--violet); background: rgba(155,123,255,0.08); }
+
+  /* ============ QUIZ RUN ============ */
+  .progress-bar-outer{ background: var(--border-soft); border-radius:999px; height:7px; overflow:hidden; margin-bottom:10px; }
+  .progress-bar-inner{ background: var(--grad-1); height:100%; width:0%; transition: width .3s; }
+  .meta-row{ display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color: var(--text-dim); margin-bottom:12px; font-family: var(--font-mono); }
+  .score-live{ font-weight:700; color: var(--cyan); }
+  .tag{ display:inline-block; padding:3px 10px; border-radius:7px; font-weight:700; font-size:10.5px; text-transform:uppercase; letter-spacing:.02em; }
+  .tag-c1{ background:#1c3a66; color:#7ab4ff; }
+  .tag-c2{ background:#153d2e; color:#5fe3ae; }
+  .tag-c3{ background:#3d1f45; color:#e79dfa; }
+  .tag-c4{ background:#453818; color:#ffcf5c; }
+  .tag-c5{ background:#2a2260; color:#b3a6ff; }
+  .tag-c6{ background:#451c24; color:#ff9aa6; }
+  .diff-stars{ color: var(--amber); font-size:12px; font-family: var(--font-mono); }
+
+  .question-text{ font-family: var(--font-display); font-size:17px; font-weight:600; margin: 8px 0 18px; line-height:1.45; color:var(--text); }
+  .option{
+    display:block; width:100%; text-align:left; background: var(--panel-2);
+    border:1.5px solid var(--border-soft); border-radius:12px; padding: 13px 15px;
+    font-size:14.5px; margin-bottom:9px; cursor:pointer; color: var(--text); font-family: var(--font-body);
+    transition: border-color .15s, background .15s;
+  }
+  .option:hover{ border-color: var(--cyan); }
+  .option.correct{ background: rgba(61,220,151,0.12); border-color: var(--green); color:#c7ffe5; font-weight:600; }
+  .option.wrong{ background: rgba(255,107,107,0.12); border-color: var(--red); color:#ffd3d3; font-weight:600; }
+  .option.disabled{ cursor:default; pointer-events:none; }
+
+  .explain-box{
+    display:none; background: rgba(155,123,255,0.08); border:1px solid rgba(155,123,255,0.25);
+    border-radius:12px; padding: 14px 16px; font-size:13.5px; color: #d7ccff; margin: 6px 0 16px; line-height:1.55;
+  }
+  .explain-box .ex-label{ font-weight:700; color: var(--violet); display:block; margin-bottom:5px; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; }
+
+  .nav-row{ display:flex; gap:10px; margin-top:6px; }
+  button.next-btn{
+    flex:1; background: var(--grad-1); color:#04121a; border:none; border-radius:12px;
+    padding: 13px; font-size:14.5px; font-weight:700; cursor:pointer; opacity:.35; pointer-events:none;
+    font-family: var(--font-body); transition: opacity .2s;
+  }
+  button.next-btn.active{ opacity:1; pointer-events:auto; }
+  button.quit-btn{
+    background: transparent; border:1.5px solid var(--border); color: var(--text-dim); border-radius:12px;
+    padding: 13px 16px; font-size:13.5px; cursor:pointer; font-family: var(--font-body);
+  }
+
+  /* ============ RESULT ============ */
+  .big-score{ font-family: var(--font-display); font-size:48px; font-weight:800; margin: 6px 0; background: var(--grad-1); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .score-desc{ color: var(--text-dim); margin-bottom:20px; font-size:14px; }
+  .cb-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:13px; }
+  .cb-label{ width:150px; flex-shrink:0; color: var(--text-dim); }
+  .cb-bar-outer{ flex:1; background: var(--border-soft); border-radius:999px; height:8px; overflow:hidden; }
+  .cb-bar-inner{ background: var(--grad-1); height:100%; }
+  .cb-frac{ width:48px; text-align:right; color: var(--text-dim); font-size:12px; font-family: var(--font-mono); }
+
+  .review-item{ text-align:left; border-top:1px solid var(--border-soft); padding: 14px 0; font-size:13.5px; }
+  .review-item .q{ font-weight:700; margin-bottom:8px; color:var(--text); }
+  .review-item .ans-line{ margin: 3px 0; }
+  .review-item .ok{ color: var(--green); }
+  .review-item .no{ color: var(--red); }
+  .review-item .rex{ margin-top:8px; background: rgba(255,255,255,0.03); border-radius:10px; padding:10px 12px; color: var(--text-dim); font-size:12.8px; }
+
+  ::selection{ background: var(--cyan); color:#04121a; }
+
+  @media (max-width: 480px){
+    .cd-grid{ grid-template-columns: repeat(4,1fr); gap:6px; }
+    .cd-num{ font-size: 20px; }
+    .scope-grid{ grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand"><span class="dot"></span><h1>Ôn tập giữa kỳ <span>· Công nghệ số &amp; AI</span></h1></div>
+    <div class="subtitle">Nhập môn Công nghệ số và Ứng dụng Trí tuệ Nhân tạo</div>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-view="home" onclick="switchView('home')">🏠 Trang chủ</button>
+      <button class="tab-btn" data-view="theory" onclick="switchView('theory')">📘 Lý thuyết</button>
+      <button class="tab-btn" data-view="quiz" onclick="switchView('quiz')">✏️ Trắc nghiệm</button>
+    </nav>
+  </header>
+
+  <!-- ============ HOME VIEW ============ -->
+  <div class="view active" id="view-home">
+
+    <div class="countdown-card">
+      <div class="cd-label"><span class="pulse"></span> Đếm ngược đến giờ thi</div>
+      <div class="cd-grid" id="cd-grid">
+        <div class="cd-box"><div class="cd-num" id="cd-days">--</div><div class="cd-unit">Ngày</div></div>
+        <div class="cd-box"><div class="cd-num" id="cd-hours">--</div><div class="cd-unit">Giờ</div></div>
+        <div class="cd-box"><div class="cd-num" id="cd-mins">--</div><div class="cd-unit">Phút</div></div>
+        <div class="cd-box"><div class="cd-num" id="cd-secs">--</div><div class="cd-unit">Giây</div></div>
+      </div>
+      <div class="cd-target">Mục tiêu: <b>09:00, Thứ Tư 08/07/2026</b></div>
+    </div>
+
+    <div class="card">
+      <p class="lead" style="margin-top:0">Bộ 100 câu trắc nghiệm bám sát nội dung 6 chương, kèm giải thích chi tiết cho mọi đáp án. Chọn ôn theo chương hoặc làm đề tổng hợp.</p>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="num">100</div><div class="lbl">câu hỏi</div></div>
+        <div class="stat-box"><div class="num">6</div><div class="lbl">chương</div></div>
+        <div class="stat-box"><div class="num">4</div><div class="lbl">mức độ khó</div></div>
+      </div>
+      <div class="chip-row">
+        <span class="chip c1">C1 Máy tính &amp; TB ngoại vi</span>
+        <span class="chip c2">C2 Khai thác dữ liệu</span>
+        <span class="chip c3">C3 Tổng quan AI</span>
+        <span class="chip c4">C4 Giao tiếp &amp; hợp tác</span>
+        <span class="chip c5">C5 Sáng tạo nội dung số</span>
+        <span class="chip c6">C6 An toàn &amp; liêm chính</span>
+      </div>
+      <button class="btn-primary" onclick="switchView('quiz')">✏️ Bắt đầu làm bài trắc nghiệm</button>
+      <button class="btn-secondary" onclick="switchView('theory')">📘 Xem tóm tắt lý thuyết trước</button>
+    </div>
+  </div>
+
+  <!-- ============ THEORY VIEW ============ -->
+  <div class="view" id="view-theory">
+    <p class="lead">Chạm vào mỗi chương để mở/thu gọn nội dung. Chương 3 &amp; 6 là trọng tâm lớn nhất của đề thi.</p>
+    <section class="chap" id="chap-C1" data-chap="C1">
+  <button class="chap-head" onclick="toggleChap('C1')">
+    <span class="chap-num">01</span>
+    <span class="chap-title">Máy tính &amp; các thiết bị ngoại vi</span>
+    <span class="chap-chevron">⌄</span>
+  </button>
+  <div class="chap-body" id="body-C1">
+
+    <h4>1.1 Khái niệm nền tảng</h4>
+    <ul>
+      <li><b>Dữ liệu (Data):</b> sự kiện, số liệu thô, chưa xử lý, chưa có ý nghĩa (VD: 8, 7, 9).</li>
+      <li><b>Thông tin (Information):</b> dữ liệu đã qua xử lý, có ngữ cảnh, có ý nghĩa.</li>
+      <li><b>Máy tính:</b> xử lý theo 4 giai đoạn — <b>Input → Processing → Output → Storage</b>.</li>
+      <li><b>Công nghệ số:</b> hệ sinh thái công cụ + hệ thống + tài nguyên số phục vụ chuyển đổi số.</li>
+    </ul>
+
+    <h4>1.2 Phần cứng (Hardware)</h4>
+    <ul>
+      <li><b>CPU:</b> "bộ não", xử lý số học/logic. Xu hướng mới: tích hợp <b>NPU</b> (Neural Processing Unit) chuyên xử lý AI (Intel Core Ultra 200-series, AMD Ryzen AI 300).</li>
+      <li><b>RAM:</b> bộ nhớ tạm, mất dữ liệu khi tắt máy. Chuẩn mới: <b>DDR5</b>.</li>
+      <li><b>ROM:</b> chứa firmware, không mất dữ liệu khi tắt máy.</li>
+      <li><b>Lưu trữ:</b> HDD (đĩa từ, rẻ, chậm) vs <b>SSD</b> (chip nhớ flash, nhanh); chuẩn nhanh nhất: <b>NVMe</b> (qua giao tiếp PCIe).</li>
+      <li><b>Input:</b> bàn phím, chuột, webcam, mic, scanner. <b>Output:</b> màn hình, máy in, loa, tai nghe.</li>
+      <li>Bo mạch chủ (Mainboard) = "xương sống" kết nối mọi linh kiện.</li>
+    </ul>
+
+    <h4>1.3 Phần mềm (Software)</h4>
+    <ul>
+      <li><b>Phần mềm hệ thống:</b> OS, driver, utilities.</li>
+      <li><b>Phần mềm ứng dụng:</b> trình duyệt, Office, Photoshop, Zalo...</li>
+    </ul>
+
+    <h4>1.4 Phân loại thiết bị số cá nhân</h4>
+    <table>
+      <tr><th>Thiết bị</th><th>Đặc điểm nổi bật</th></tr>
+      <tr><td>Desktop</td><td>Hiệu năng/giá tốt nhất, dễ nâng cấp, không di động</td></tr>
+      <tr><td>Laptop</td><td>Di động cao, nâng cấp hạn chế (RAM, SSD)</td></tr>
+      <tr><td>Tablet</td><td>Di động cực cao, cảm ứng, hiệu năng hạn chế</td></tr>
+      <tr><td>Smartphone</td><td>Luôn mang theo, màn hình nhỏ</td></tr>
+    </table>
+    <p class="note">Wearables/IoT: Smartwatch, Fitness tracker, e-Reader (màn hình E-ink không gây mỏi mắt).</p>
+
+    <h4>1.5 Hệ điều hành (OS)</h4>
+    <p>Vai trò: quản lý tài nguyên phần cứng, quản lý tệp tin, cung cấp giao diện người dùng (UI). Không có OS → máy tính chỉ là "khối kim loại vô tri".</p>
+
+    <h4>1.6 Kết nối mạng &amp; không dây</h4>
+    <table>
+      <tr><th>Công nghệ</th><th>Phạm vi</th><th>Đặc điểm</th></tr>
+      <tr><td>Wi-Fi (802.11)</td><td>Vài chục mét</td><td>Wi-Fi 7 (802.11be) nhanh gấp 4 lần Wi-Fi 6E, băng thông 320MHz, MLO</td></tr>
+      <tr><td>Bluetooth</td><td>~10 mét</td><td>Tiết kiệm năng lượng; bản mới nhất Bluetooth 5.4</td></tr>
+      <tr><td>NFC</td><td>Vài cm</td><td>Cảm ứng từ trường; thanh toán không chạm, CCCD gắn chip</td></tr>
+      <tr><td>USB-C / Thunderbolt</td><td>—</td><td>USB-C là <b>hình dáng cổng</b>, tốc độ phụ thuộc <b>giao thức</b> (Thunderbolt 4 = 40Gbps, Thunderbolt 5 = 80–120Gbps)</td></tr>
+    </table>
+
+    <h4>1.7 Phần mềm ứng dụng thông dụng</h4>
+    <ul>
+      <li>Bộ văn phòng: Microsoft Office (trả phí, offline tốt) vs Google Workspace (miễn phí, cộng tác thời gian thực tốt nhất) vs LibreOffice (miễn phí hoàn toàn).</li>
+      <li>Quản lý tài liệu tham khảo: <b>Zotero, Mendeley, EndNote</b> — tự động trích dẫn + tạo danh mục tham khảo.</li>
+      <li>LMS: VNU-LMS, Moodle, Canvas.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chap" id="chap-C2" data-chap="C2">
+  <button class="chap-head" onclick="toggleChap('C2')">
+    <span class="chap-num">02</span>
+    <span class="chap-title">Khai thác dữ liệu &amp; thông tin</span>
+    <span class="chap-chevron">⌄</span>
+  </button>
+  <div class="chap-body" id="body-C2">
+
+    <h4>2.1 Mô hình DIKW</h4>
+    <p><b>Data → Information → Knowledge → Wisdom.</b> Dữ liệu: thô, rời rạc. Thông tin: có ngữ cảnh (ai/cái gì/khi nào). Tri thức: hiểu biết để ra quyết định (tại sao/như thế nào).</p>
+
+    <h4>2.2 Phân loại dữ liệu</h4>
+    <ul>
+      <li>Theo cấu trúc: <b>Có cấu trúc</b> (Excel, CSDL quan hệ) / <b>Bán cấu trúc</b> (XML, JSON) / <b>Phi cấu trúc</b> (văn bản, ảnh, video).</li>
+      <li>Định dạng tệp: .docx, .pdf (giữ nguyên định dạng), .csv (trao đổi dữ liệu), .png (nền trong suốt), .zip/.rar (nén).</li>
+    </ul>
+
+    <h4>2.3 Big Data — Mô hình "5V"</h4>
+    <p><b>Volume</b> (khối lượng) – <b>Velocity</b> (tốc độ) – <b>Variety</b> (đa dạng) – <b>Veracity</b> (độ tin cậy) – <b>Value</b> (giá trị — quan trọng nhất).</p>
+
+    <h4>2.4 Tổ chức &amp; bảo vệ dữ liệu</h4>
+    <ul>
+      <li>Đặt tên tệp: <code>YYYY-MM-DD_[Mã môn]_[Loại]_[Nội dung]_[Version]</code>.</li>
+      <li>Lưu trữ đám mây: Google Drive (15GB), OneDrive (5GB, SV thường 1TB), Dropbox (2GB).</li>
+      <li><b>Quy tắc sao lưu 3-2-1</b>: 3 bản sao — 2 loại phương tiện khác nhau — 1 bản off-site.</li>
+      <li>Bảo mật: mật khẩu mạnh (&gt;12 ký tự) + <b>2FA</b> (lớp bảo vệ quan trọng nhất).</li>
+    </ul>
+
+    <h4>2.5 Kỹ thuật tìm kiếm</h4>
+    <table>
+      <tr><th>Toán tử</th><th>Chức năng</th></tr>
+      <tr><td><code>"..."</code></td><td>Tìm chính xác cụm từ</td></tr>
+      <tr><td><code>-</code></td><td>Loại trừ từ khóa</td></tr>
+      <tr><td><code>OR</code></td><td>Tìm 1 trong các từ khóa</td></tr>
+      <tr><td><code>site:</code></td><td>Giới hạn trong 1 trang web</td></tr>
+      <tr><td><code>filetype:</code></td><td>Tìm loại tệp cụ thể</td></tr>
+      <tr><td><code>related:</code></td><td>Trang tương tự</td></tr>
+    </table>
+    <p class="note">Công cụ học thuật: <b>Google Scholar</b> (chú ý "Cited by"), VNU-LIC (repository.vnu.edu.vn, ScienceDirect, IEEE Xplore). AI hỗ trợ nghiên cứu: Elicit, Semantic Scholar (TLDR), SciSpace.</p>
+
+    <h4>2.6 Đánh giá thông tin — CRAAP Test</h4>
+    <p><b>C</b>urrency (cập nhật) – <b>R</b>elevance (liên quan) – <b>A</b>uthority (tác giả/nguồn) – <b>A</b>ccuracy (chính xác) – <b>P</b>urpose (mục đích).</p>
+
+    <h4>2.7 Đạo văn &amp; trích dẫn</h4>
+    <ul>
+      <li>Bản quyền phát sinh <b>tự động</b> ngay khi tác phẩm được tạo ra, <b>không cần đăng ký</b>.</li>
+      <li>Chuẩn <b>Harvard</b>: trích dẫn trong bài (Họ, Năm) + danh mục tham khảo cuối bài xếp theo ABC.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="chap" id="chap-C3" data-chap="C3">
+  <button class="chap-head" onclick="toggleChap('C3')">
+    <span class="chap-num">03</span>
+    <span class="chap-title">Tổng quan về Trí tuệ nhân tạo <span class="hot-tag">★ trọng tâm</span></span>
+    <span class="chap-chevron">⌄</span>
+  </button>
+  <div class="chap-body" id="body-C3">
+
+    <h4>3.1 Lịch sử AI</h4>
+    <ul>
+      <li><b>1950:</b> Alan Turing – "Máy móc có thể suy nghĩ không?" → <b>Turing Test</b>.</li>
+      <li><b>1956:</b> Thuật ngữ "Artificial Intelligence" ra đời tại <b>Hội nghị Dartmouth</b> (John McCarthy).</li>
+      <li>Các "<b>mùa đông AI</b>": lần 1 (~1970s), lần 2 (cuối 1980s–đầu 1990s) do hạn chế của <b>Hệ chuyên gia</b> (Expert Systems, rule-based).</li>
+      <li>Bước ngoặt: Học máy nhờ <b>Big Data + GPU + Deep Learning</b>.</li>
+      <li>Mốc quan trọng: <b>AlexNet</b> (2012) → <b>AlphaGo</b> thắng Lee Sedol (2016) → <b>Transformer</b> (2017) → <b>ChatGPT</b> (cuối 2022).</li>
+    </ul>
+
+    <h4>3.2 Phân cấp khái niệm: AI ⊃ ML ⊃ DL</h4>
+    <ul>
+      <li><b>AI:</b> lĩnh vực tổng quát mô phỏng trí tuệ con người. <b>Narrow AI</b> (hẹp, hiện tại) vs <b>AGI</b> (tổng quát, chưa đạt được).</li>
+      <li><b>Học máy (ML):</b> máy tự học từ dữ liệu, không lập trình luật tường minh.</li>
+      <li><b>Mạng nơ-ron nhân tạo (ANN):</b> mô phỏng não bộ, gồm các lớp nơ-ron có trọng số.</li>
+      <li><b>Học sâu (DL):</b> ANN có nhiều lớp ẩn (hidden layers), mạnh với dữ liệu phi cấu trúc.</li>
+    </ul>
+
+    <h4>3.3 AI Tạo sinh (GenAI)</h4>
+    <ul>
+      <li>Tạo nội dung <b>mới</b>, khác với <b>AI Phân biệt</b> (Discriminative AI — chỉ phân loại/dự đoán nhãn).</li>
+      <li>Cơ chế LLM: <b>Tokenization → Embedding → Transformer layers (Attention) → Probabilistic Generation → Iteration</b>.</li>
+      <li><b>Hallucination (ảo giác):</b> AI "bịa" thông tin vì hoạt động theo xác suất, không "biết" sự thật.</li>
+      <li>Tham số điều khiển: <b>Temperature</b> (thấp = chính xác/an toàn; cao = sáng tạo/ngẫu nhiên), <b>Top-K</b>, <b>Top-P</b>.</li>
+    </ul>
+
+    <h4>3.4 Prompt Engineering</h4>
+    <ul>
+      <li>Nguyên tắc: rõ ràng cụ thể, cung cấp ngữ cảnh, xác định vai trò/đối tượng.</li>
+      <li>Mô hình <b>CLEAR</b>: <b>C</b>ontext – ro<b>L</b>e – <b>E</b>xplicit instruction – <b>A</b>udience – <b>R</b>efine.</li>
+      <li>Kỹ thuật: <b>Zero-shot</b> (không ví dụ) – <b>Few-shot</b> (kèm ví dụ mẫu) – <b>Chain-of-Thought/CoT</b> (suy nghĩ từng bước).</li>
+    </ul>
+
+    <h4>3.5 So sánh công cụ AI</h4>
+    <table>
+      <tr><th>Công cụ</th><th>Điểm mạnh</th></tr>
+      <tr><td>ChatGPT</td><td>Sáng tạo văn bản, linh hoạt</td></tr>
+      <tr><td>Gemini</td><td>Tích hợp Google Workspace, real-time từ Google Search</td></tr>
+      <tr><td>Copilot</td><td>Tích hợp Microsoft 365</td></tr>
+      <tr><td>Perplexity</td><td>Luôn có trích dẫn nguồn — tốt cho nghiên cứu học thuật</td></tr>
+      <tr><td>Grok</td><td>Dữ liệu real-time từ X (Twitter)</td></tr>
+      <tr><td>Meta AI (Llama)</td><td>Tích hợp Facebook/Instagram, tạo ảnh nhanh</td></tr>
+    </table>
+
+    <h4>3.6 Thách thức của AI</h4>
+    <p>Hallucination, Thiên vị (Bias), Phụ thuộc/xói mòn tư duy, Quyền riêng tư, Liêm chính học thuật, Khoảng cách số (Digital Divide).</p>
+  </div>
+</section>
+
+<section class="chap" id="chap-C4" data-chap="C4">
+  <button class="chap-head" onclick="toggleChap('C4')">
+    <span class="chap-num">04</span>
+    <span class="chap-title">Giao tiếp &amp; hợp tác trong môi trường số</span>
+    <span class="chap-chevron">⌄</span>
+  </button>
+  <div class="chap-body" id="body-C4">
+
+    <h4>4.1 Đồng bộ vs Bất đồng bộ</h4>
+    <ul>
+      <li><b>Đồng bộ (Synchronous):</b> thời gian thực (Zoom, gọi điện) — phản hồi tức thì nhưng cần có mặt cùng lúc.</li>
+      <li><b>Bất đồng bộ (Asynchronous):</b> không cần có mặt cùng lúc (email, bình luận Google Docs) — linh hoạt nhưng có độ trễ.</li>
+    </ul>
+
+    <h4>4.2 Email chuyên nghiệp</h4>
+    <p>Tiêu đề chuẩn: <code>[Mã môn] - [Nội dung] - [Họ tên] - [MSSV]</code>. Luôn kiểm tra lỗi trước khi gửi, có chữ ký đầy đủ.</p>
+
+    <h4>4.3 Họp trực tuyến hiệu quả</h4>
+    <p>Trước họp: Agenda rõ ràng. Trong họp: tắt mic khi không nói, dùng "Giơ tay". Sau họp: gửi biên bản (meeting minutes) + action items.</p>
+
+    <h4>4.4 Netiquette &amp; mạng xã hội</h4>
+    <p>LinkedIn cho sự nghiệp; "Quy tắc vàng": không đăng gì mà bạn không muốn nhà tuyển dụng nhìn thấy.</p>
+
+    <h4>4.5 Cộng tác số</h4>
+    <ul>
+      <li>3 yếu tố văn hóa cốt lõi: <b>Tin tưởng – Rõ ràng – Tôn trọng</b>.</li>
+      <li>Công cụ quản lý dự án: <b>Trello</b> (Kanban, đơn giản), <b>Asana</b> (nhiều chế độ xem, phức tạp hơn), <b>Notion</b> (linh hoạt, tất cả trong một).</li>
+    </ul>
+
+    <h4>4.6 AI hỗ trợ giao tiếp</h4>
+    <p>Calendly/Reclaim.ai (lên lịch), Copilot/Gemini (soạn email, tóm tắt chuỗi email), Google Translate vs <b>DeepL</b> (DeepL tự nhiên hơn, ít ngôn ngữ hơn).</p>
+  </div>
+</section>
+
+<section class="chap" id="chap-C5" data-chap="C5">
+  <button class="chap-head" onclick="toggleChap('C5')">
+    <span class="chap-num">05</span>
+    <span class="chap-title">Sáng tạo nội dung số</span>
+    <span class="chap-chevron">⌄</span>
+  </button>
+  <div class="chap-body" id="body-C5">
+
+    <h4>5.1 5 loại nội dung số</h4>
+    <p>Văn bản – Hình ảnh – Âm thanh – Video – Đa phương tiện (mỗi loại có ưu/nhược điểm riêng).</p>
+
+    <h4>5.2 Quy trình sáng tạo (6 bước)</h4>
+    <p><b>Lên ý tưởng &amp; Nghiên cứu → Lập kế hoạch (mục tiêu SMART) → Sản xuất → Biên tập &amp; Tinh chỉnh → Xuất bản &amp; Phân phối → Đo lường &amp; Tối ưu (KPIs)</b>.</p>
+
+    <h4>5.3 Bản quyền &amp; Sở hữu trí tuệ</h4>
+    <ul>
+      <li>Bản quyền tự động phát sinh khi tác phẩm được định hình vật chất.</li>
+      <li><b>Creative Commons</b>: <b>CC BY</b> (ghi công) – <b>CC BY-SA</b> (chia sẻ tương tự) – <b>CC BY-NC</b> (phi thương mại) – <b>CC BY-ND</b> (không phái sinh).</li>
+      <li>Nguồn ảnh miễn phí bản quyền: Unsplash, Pexels, Pixabay.</li>
+    </ul>
+
+    <h4>5.4 Công cụ sáng tạo nội dung</h4>
+    <ul>
+      <li>Văn bản: Word, Google Docs, Grammarly (kiểm tra ngữ pháp + đạo văn).</li>
+      <li>Hình ảnh: Canva, Photoshop, GIMP/Photopea (miễn phí); AI tạo ảnh: Midjourney, DALL-E, Stable Diffusion (nguyên lý <b>diffusion</b>).</li>
+      <li>Âm thanh/Video: Audacity, CapCut, Descript (AI chuyển giọng nói → văn bản).</li>
+    </ul>
+
+    <h4>5.5 Đánh giá nội dung AI tạo ra</h4>
+    <p>Checklist: <b>Tính chính xác – Tính độc đáo/dấu ấn cá nhân – Sự phù hợp – Thiên kiến – Tính mạch lạc</b>.</p>
+  </div>
+</section>
+
+<section class="chap" id="chap-C6" data-chap="C6">
+  <button class="chap-head" onclick="toggleChap('C6')">
+    <span class="chap-num">06</span>
+    <span class="chap-title">An toàn &amp; liêm chính học thuật <span class="hot-tag">★ trọng tâm</span></span>
+    <span class="chap-chevron">⌄</span>
+  </button>
+  <div class="chap-body" id="body-C6">
+
+    <h4>6.1 Dấu chân số &amp; Danh tính số</h4>
+    <ul>
+      <li><b>Dấu chân số chủ động:</b> dữ liệu cố ý chia sẻ (đăng ảnh, bình luận).</li>
+      <li><b>Dấu chân số bị động:</b> dữ liệu bị thu thập không chủ động (lịch sử tìm kiếm, IP).</li>
+    </ul>
+
+    <h4>6.2 Nguy cơ an ninh mạng</h4>
+    <p>Phishing/Smishing, Ransomware (mã hóa dữ liệu đòi tiền chuộc), DDoS, <b>AI-powered threats</b> (deepfake, email lừa đảo hoàn hảo do AI viết).</p>
+
+    <h4>6.3 Bảo vệ thiết bị</h4>
+    <p>Mật khẩu mạnh + trình quản lý mật khẩu (Bitwarden), <b>2FA</b>, cập nhật phần mềm, Antivirus, <b>VPN</b> (khi dùng Wi-Fi công cộng), quy tắc sao lưu <b>3-2-1</b>.</p>
+
+    <h4>6.4 Sức khỏe số (Digital Well-being)</h4>
+    <ul>
+      <li>Quy tắc <b>20-20-20</b>: mỗi 20 phút nhìn xa 20 feet (~6m) trong 20 giây.</li>
+      <li>Vấn đề tâm lý: FOMO, nghiện mạng xã hội, cyberbullying.</li>
+      <li>Digital Detox, Screen Time/Digital Wellbeing.</li>
+    </ul>
+
+    <h4>6.5 Liêm chính học thuật (ICAI — 6 giá trị cốt lõi)</h4>
+    <p><b>Trung thực – Tin cậy – Công bằng – Tôn trọng – Trách nhiệm – Dũng cảm</b>.</p>
+
+    <h4>6.6 Các hình thức vi phạm</h4>
+    <table>
+      <tr><th>Hình thức</th><th>Định nghĩa</th></tr>
+      <tr><td>Đạo văn (Plagiarism)</td><td>Dùng ý tưởng/từ ngữ người khác không ghi nguồn</td></tr>
+      <tr><td>Bịa đặt (Fabrication)</td><td>Tự tạo dữ liệu/trích dẫn không có thật</td></tr>
+      <tr><td>Gian lận (Fraud)</td><td>Chép bài, dùng tài liệu cấm khi thi</td></tr>
+      <tr><td>Gian lận hợp đồng (Contract Cheating)</td><td>Thuê/nhờ bên thứ ba làm bài (kể cả nộp bài do AI viết hoàn toàn)</td></tr>
+    </table>
+
+    <h4>6.7 Trích dẫn &amp; công cụ hỗ trợ</h4>
+    <p>Turnitin, Quetext (kiểm tra đạo văn); Zotero, Mendeley (quản lý tài liệu tham khảo). Báo cáo tương đồng (similarity report) <b>không đồng nghĩa</b> với "báo cáo đạo văn".</p>
+
+    <h4>6.8 Đạo đức dùng AI — nguyên tắc trách nhiệm</h4>
+    <p><b>Minh bạch – Trách nhiệm – Trung thực/Nguyên bản – Giám sát của con người – Bảo vệ dữ liệu</b>. Trích dẫn AI theo chuẩn Harvard: (Tên nhà phát triển, Năm) trong bài + đầy đủ trong danh mục tham khảo.</p>
+
+    <h4>6.9 Pháp luật Việt Nam liên quan</h4>
+    <ul>
+      <li><b>Luật An ninh mạng 2018:</b> cấm đăng tin sai sự thật, lừa đảo...</li>
+      <li><b>Nghị định 13/2023/NĐ-CP:</b> bảo vệ dữ liệu cá nhân (hiệu lực 7/2023).</li>
+      <li><b>Luật Bảo vệ dữ liệu cá nhân 2025</b> (Luật số 91/2025/QH15): hiệu lực từ <b>01/01/2026</b>.</li>
+      <li><b>Luật Sở hữu trí tuệ:</b> bảo vệ quyền tác giả.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="tips-box">
+  <h4>💡 Mẹo ôn thi nhanh</h4>
+  <ol>
+    <li>Chương 3 và Chương 6 chiếm trọng số lớn nhất — tập trung vào: phân biệt AI/ML/DL, CLEAR, CoT, hallucination, CRAAP, 2FA, quy tắc 3-2-1, các hình thức vi phạm liêm chính học thuật.</li>
+    <li>Học kỹ các <b>con số mốc thời gian</b>: 1950 (Turing), 1956 (Dartmouth), 2012 (AlexNet), 2016 (AlphaGo), 2017 (Transformer), cuối 2022 (ChatGPT).</li>
+    <li>Nắm chắc các <b>mô hình viết tắt</b>: DIKW, 5V (Big Data), CRAAP, CLEAR, ICAI (6 giá trị).</li>
+    <li>Phân biệt các cặp khái niệm dễ nhầm: Đồng bộ/Bất đồng bộ, Trích dẫn/Diễn giải/Tóm tắt, Đạo văn/Bịa đặt/Gian lận/Gian lận hợp đồng.</li>
+  </ol>
+</section>
+
+  </div>
+
+  <!-- ============ QUIZ VIEW ============ -->
+  <div class="view" id="view-quiz">
+
+    <div id="quiz-setup" class="card">
+      <h2 class="section-title"><span class="n">01</span> Chọn phạm vi ôn tập</h2>
+      <div class="scope-grid" id="scope-grid"></div>
+
+      <h2 class="section-title"><span class="n">02</span> Mức độ khó (tuỳ chọn)</h2>
+      <div class="diff-row" id="diff-row"></div>
+
+      <button class="btn-primary" onclick="startQuiz()">🚀 Bắt đầu làm bài</button>
+      <div id="scope-warning" style="display:none;color:var(--red);font-size:12.5px;margin-top:10px;text-align:center;">Không có câu hỏi phù hợp với lựa chọn này — hãy chọn phạm vi khác.</div>
+    </div>
+
+    <div id="quiz-run" class="card" style="display:none;">
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progress-bar"></div></div>
+      <div class="meta-row">
+        <span id="q-counter">Câu 1/100</span>
+        <span>Điểm: <span class="score-live" id="live-score">0</span></span>
+      </div>
+      <div class="meta-row" style="margin-top:-6px;">
+        <span id="chapter-tag"></span>
+        <span class="diff-stars" id="diff-stars"></span>
+      </div>
+      <div class="question-text" id="question-text"></div>
+      <div id="options-container"></div>
+      <div class="explain-box" id="explain-box"><span class="ex-label">Giải thích</span><span id="explain-text"></span></div>
+      <div class="nav-row">
+        <button class="quit-btn" onclick="quitQuiz()">Thoát</button>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Câu tiếp theo →</button>
+      </div>
+    </div>
+
+    <div id="quiz-result" class="card" style="display:none; text-align:center;">
+      <div style="font-size:14px;color:var(--text-dim);">Kết quả của bạn</div>
+      <div class="big-score" id="final-score">0/100</div>
+      <div class="score-desc" id="final-desc"></div>
+      <div class="chapter-breakdown" id="chapter-breakdown" style="text-align:left;margin:18px 0;"></div>
+      <button class="btn-primary" onclick="restartSetup()">↻ Làm bài khác</button>
+      <button class="btn-secondary" id="review-btn" onclick="toggleReview()">Xem lại đáp án chi tiết</button>
+      <div id="review-list"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const QUIZ_DATA = [{"c": "C1", "d": 1, "q": "CPU được ví như bộ phận nào của máy tính?", "o": ["Bộ não", "Trái tim", "Lá phổi", "Đôi tay"], "a": 0, "e": "CPU (Central Processing Unit) là bộ phận xử lý số học và logic trung tâm của máy tính, thực hiện các phép tính và ra quyết định — giống vai trò của bộ não trong cơ thể người."}, {"c": "C1", "d": 1, "q": "RAM là viết tắt của cụm từ nào?", "o": ["Read Access Memory", "Random Access Memory", "Rapid Access Module", "Read Any Memory"], "a": 1, "e": "RAM là viết tắt của Random Access Memory — bộ nhớ truy cập ngẫu nhiên, lưu dữ liệu tạm thời để CPU xử lý nhanh, và sẽ mất hết khi tắt máy (khác với ROM)."}, {"c": "C1", "d": 1, "q": "Thiết bị nào sau đây KHÔNG phải là thiết bị đầu vào (Input)?", "o": ["Bàn phím", "Chuột", "Máy in", "Webcam"], "a": 2, "e": "Máy in là thiết bị xuất kết quả ra giấy nên thuộc nhóm thiết bị đầu ra (Output), còn bàn phím, chuột, webcam đều nhận dữ liệu vào máy nên là thiết bị Input."}, {"c": "C1", "d": 1, "q": "Ổ cứng thể rắn viết tắt là gì?", "o": ["HDD", "SSD", "RAM", "ROM"], "a": 1, "e": "SSD (Solid State Drive) là ổ cứng thể rắn dùng chip nhớ flash, tốc độ đọc/ghi nhanh hơn nhiều so với HDD (đĩa từ truyền thống)."}, {"c": "C1", "d": 1, "q": "Thiết bị nào có tính di động cao nhất trong các loại sau?", "o": ["Máy tính để bàn", "Điện thoại thông minh", "Máy trạm", "Máy chủ"], "a": 1, "e": "Trong 4 loại thiết bị số cá nhân, smartphone luôn được mang theo người và có kích thước nhỏ gọn nhất nên có tính di động cao nhất, dù hiệu năng và màn hình bị hạn chế."}, {"c": "C1", "d": 1, "q": "Phần mềm nào sau đây thuộc nhóm phần mềm ứng dụng?", "o": ["Hệ điều hành Windows", "Driver máy in", "Microsoft Word", "Firmware BIOS"], "a": 2, "e": "Microsoft Word là phần mềm ứng dụng (phục vụ nhu cầu người dùng cụ thể). Windows, driver máy in và firmware BIOS đều thuộc nhóm phần mềm hệ thống, vận hành nền tảng máy tính."}, {"c": "C1", "d": 1, "q": "Công cụ nào dùng để số hóa tài liệu giấy thành file PDF/ảnh?", "o": ["Máy in", "Máy quét (Scanner)", "Loa", "Micro"], "a": 1, "e": "Máy quét (Scanner) là thiết bị đầu vào dùng để số hóa tài liệu giấy thành file ảnh hoặc PDF để lưu trữ và xử lý trên máy tính."}, {"c": "C1", "d": 1, "q": "Bluetooth có phạm vi kết nối khoảng bao nhiêu mét?", "o": ["1 mét", "10 mét", "100 mét", "1000 mét"], "a": 1, "e": "Theo tài liệu, Bluetooth có phạm vi kết nối khoảng 10 mét, tiết kiệm năng lượng, phù hợp kết nối thiết bị ở khoảng cách gần (tai nghe, chuột không dây...)."}, {"c": "C1", "d": 2, "q": "Chuẩn kết nối lưu trữ nào cho tốc độ cao nhất hiện nay, sử dụng giao tiếp PCIe?", "o": ["SATA", "USB 2.0", "NVMe", "IDE"], "a": 2, "e": "NVMe là chuẩn kết nối lưu trữ nhanh nhất hiện nay vì tận dụng giao tiếp PCIe tốc độ cao, vượt trội hơn nhiều so với SATA hay các chuẩn cũ như IDE."}, {"c": "C1", "d": 2, "q": "NPU trong các CPU hiện đại (Intel Core Ultra, AMD Ryzen AI) có chức năng chính là gì?", "o": ["Tăng tốc đồ họa game", "Xử lý chuyên dụng cho các tác vụ AI", "Quản lý nguồn điện", "Kết nối mạng không dây"], "a": 1, "e": "NPU (Neural Processing Unit) là bộ xử lý chuyên dụng được tích hợp trong các CPU hiện đại (Intel Core Ultra 200-series, AMD Ryzen AI 300) để tăng tốc các tác vụ AI ngay trên thiết bị."}, {"c": "C1", "d": 2, "q": "NFC hoạt động dựa trên nguyên lý nào?", "o": ["Sóng radio tầm xa", "Cảm ứng từ trường ở khoảng cách vài cm", "Tia hồng ngoại", "Sóng siêu âm"], "a": 1, "e": "NFC hoạt động dựa trên nguyên lý cảm ứng từ trường ở khoảng cách rất gần (vài cm), được ứng dụng trong thanh toán không chạm và thẻ CCCD gắn chip."}, {"c": "C1", "d": 2, "q": "Vai trò nào KHÔNG thuộc về hệ điều hành (OS)?", "o": ["Quản lý tài nguyên phần cứng", "Quản lý tệp tin và thư mục", "Cung cấp giao diện người dùng", "Tạo ra nội dung sáng tạo mới"], "a": 3, "e": "Hệ điều hành có vai trò quản lý phần cứng, quản lý tệp tin và cung cấp giao diện người dùng — nhưng không tự tạo ra nội dung sáng tạo mới, đó là việc của các phần mềm ứng dụng (Word, Photoshop...)."}, {"c": "C1", "d": 2, "q": "USB-C và Thunderbolt khác nhau ở điểm nào quan trọng nhất?", "o": ["USB-C là hình dáng cổng, Thunderbolt là giao thức tốc độ cao đi kèm", "Chúng hoàn toàn giống nhau", "Thunderbolt chỉ dùng cho sạc pin", "USB-C chỉ có trên điện thoại"], "a": 0, "e": "USB-C chỉ mô tả hình dáng vật lý của cổng kết nối, còn Thunderbolt là một giao thức truyền dữ liệu tốc độ cao có thể đi kèm trên cổng USB-C (ví dụ Thunderbolt 4 đạt 40Gbps, Thunderbolt 5 đạt 80–120Gbps)."}, {"c": "C1", "d": 2, "q": "Wi-Fi 7 (802.11be) mang lại lợi ích chính nào so với Wi-Fi 6E?", "o": ["Giá rẻ hơn", "Tốc độ cao hơn gấp 4 lần và độ trễ thấp hơn", "Chỉ dùng được trong nhà", "Không cần mật khẩu"], "a": 1, "e": "Wi-Fi 7 (802.11be) có tốc độ nhanh gấp khoảng 4 lần Wi-Fi 6E, băng thông kênh lên tới 320MHz và hỗ trợ công nghệ MLO, giúp giảm độ trễ đáng kể."}, {"c": "C1", "d": 2, "q": "Bộ phần mềm nào có ưu thế cộng tác thời gian thực tốt nhất, tích hợp Docs/Sheets/Meet?", "o": ["LibreOffice", "Microsoft Office bản desktop", "Google Workspace", "Adobe Creative Suite"], "a": 2, "e": "Google Workspace (Docs, Sheets, Meet...) có ưu thế cộng tác thời gian thực tốt nhất so với Microsoft Office (mạnh về offline) và LibreOffice (miễn phí hoàn toàn)."}, {"c": "C2", "d": 1, "q": "Trong mô hình DIKW, thứ tự đúng là gì?", "o": ["Data - Knowledge - Information - Wisdom", "Data - Information - Knowledge - Wisdom", "Information - Data - Wisdom - Knowledge", "Wisdom - Data - Information - Knowledge"], "a": 1, "e": "Mô hình DIKW đi theo thứ tự: Data (dữ liệu thô) → Information (có ngữ cảnh) → Knowledge (hiểu biết để ra quyết định) → Wisdom (trí tuệ vận dụng)."}, {"c": "C2", "d": 1, "q": "Định dạng tệp nào phổ biến nhất để giữ nguyên định dạng khi chia sẻ và in ấn?", "o": [".txt", ".pdf", ".csv", ".zip"], "a": 1, "e": "File PDF giữ nguyên định dạng trình bày (font, bố cục, hình ảnh) khi mở trên các thiết bị khác nhau, rất phù hợp để chia sẻ và in ấn tài liệu chính thức."}, {"c": "C2", "d": 1, "q": "Dịch vụ lưu trữ đám mây nào cung cấp 15GB miễn phí và tích hợp mạnh với Google Workspace?", "o": ["OneDrive", "Dropbox", "Google Drive", "iCloud"], "a": 2, "e": "Google Drive cung cấp 15GB miễn phí và tích hợp chặt chẽ với hệ sinh thái Google Workspace (Docs, Sheets, Meet)."}, {"c": "C2", "d": 1, "q": "Toán tử tìm kiếm Google nào dùng để tìm kiếm chính xác một cụm từ?", "o": ["OR", "dấu ngoặc kép \" \"", "dấu trừ -", "site:"], "a": 1, "e": "Dấu ngoặc kép \" \" trong Google Search dùng để tìm kiếm chính xác một cụm từ, thay vì các từ khóa rời rạc."}, {"c": "C2", "d": 2, "q": "Dữ liệu dạng bảng tính Excel, cơ sở dữ liệu quan hệ được xếp vào loại nào?", "o": ["Phi cấu trúc", "Bán cấu trúc", "Có cấu trúc", "Không thể phân loại"], "a": 2, "e": "Dữ liệu bảng tính Excel và cơ sở dữ liệu quan hệ có cấu trúc rõ ràng theo hàng/cột nên được xếp vào loại dữ liệu có cấu trúc, khác với dữ liệu bán cấu trúc (XML, JSON) hay phi cấu trúc (văn bản, ảnh, video)."}, {"c": "C2", "d": 2, "q": "Trong mô hình 5V của Big Data, yếu tố nào được xem là quan trọng nhất?", "o": ["Volume (Khối lượng)", "Velocity (Tốc độ)", "Value (Giá trị)", "Variety (Đa dạng)"], "a": 2, "e": "Trong mô hình 5V của Big Data (Volume, Velocity, Variety, Veracity, Value), Value (giá trị) được xem là yếu tố quan trọng nhất vì đó là mục tiêu cuối cùng khi khai thác dữ liệu."}, {"c": "C2", "d": 2, "q": "Quy tắc sao lưu 3-2-1 nghĩa là gì?", "o": ["3 mật khẩu, 2 email, 1 tài khoản", "3 bản sao, 2 loại phương tiện lưu trữ khác nhau, 1 bản off-site", "3 lần sao lưu mỗi ngày trong 2 tuần, 1 lần kiểm tra", "3 người quản lý, 2 máy chủ, 1 trung tâm dữ liệu"], "a": 1, "e": "Quy tắc 3-2-1: giữ 3 bản sao dữ liệu, lưu trên 2 loại phương tiện khác nhau (ví dụ ổ cứng + đám mây), và có 1 bản lưu trữ off-site (ngoài vị trí chính) để phòng rủi ro mất dữ liệu."}, {"c": "C2", "d": 2, "q": "Công cụ tìm kiếm học thuật nào của Google giúp tìm bài báo khoa học, luận văn?", "o": ["Google Trends", "Google Scholar", "Google Alerts", "Google Analytics"], "a": 1, "e": "Google Scholar là công cụ tìm kiếm học thuật của Google, giúp tìm bài báo khoa học, luận văn và theo dõi chỉ số trích dẫn ('Cited by')."}, {"c": "C2", "d": 2, "q": "Lớp bảo vệ tài khoản nào được xem là quan trọng nhất bên cạnh mật khẩu?", "o": ["Câu hỏi bí mật", "Xác thực hai yếu tố (2FA)", "Đổi mật khẩu mỗi ngày", "Dùng email phụ"], "a": 1, "e": "Xác thực hai yếu tố (2FA) được xem là lớp bảo vệ tài khoản quan trọng nhất bên cạnh mật khẩu mạnh, vì thêm một lớp xác minh độc lập khi đăng nhập."}, {"c": "C3", "d": 1, "q": "Ai là người đặt ra khái niệm Turing Test?", "o": ["John McCarthy", "Alan Turing", "Elon Musk", "Geoffrey Hinton"], "a": 1, "e": "Alan Turing là người đặt câu hỏi 'Máy móc có thể suy nghĩ không?' vào năm 1950, từ đó hình thành khái niệm Turing Test để đánh giá trí tuệ máy móc."}, {"c": "C3", "d": 1, "q": "Thuật ngữ Trí tuệ nhân tạo (AI) chính thức ra đời tại sự kiện nào?", "o": ["Hội nghị Dartmouth 1956", "Hội nghị Paris 1960", "Triển lãm CES 1980", "Hội nghị Turing 1950"], "a": 0, "e": "Thuật ngữ 'Artificial Intelligence' chính thức ra đời tại Hội nghị Dartmouth năm 1956, do John McCarthy đề xuất."}, {"c": "C3", "d": 1, "q": "ChatGPT được ra mắt và gây bùng nổ toàn cầu vào thời điểm nào?", "o": ["Đầu năm 2020", "Cuối năm 2022", "Giữa năm 2016", "Đầu năm 2010"], "a": 1, "e": "ChatGPT ra mắt vào cuối năm 2022 và gây bùng nổ toàn cầu, mở đầu làn sóng ứng dụng AI tạo sinh (GenAI) rộng rãi."}, {"c": "C3", "d": 1, "q": "AlphaGo của DeepMind nổi tiếng vì đã đánh bại ai vào năm 2016?", "o": ["Lee Sedol - kỳ thủ cờ vây", "Magnus Carlsen - kỳ thủ cờ vua", "Garry Kasparov", "Không đánh bại ai, chỉ là mô phỏng"], "a": 0, "e": "AlphaGo của DeepMind đã đánh bại kỳ thủ cờ vây Lee Sedol vào năm 2016, một cột mốc quan trọng trong lịch sử phát triển AI."}, {"c": "C4", "d": 1, "q": "Hình thức giao tiếp nào diễn ra trong thời gian thực, đòi hỏi các bên có mặt cùng lúc?", "o": ["Bất đồng bộ (Asynchronous)", "Đồng bộ (Synchronous)", "Giao tiếp một chiều", "Giao tiếp im lặng"], "a": 1, "e": "Giao tiếp đồng bộ (Synchronous) diễn ra trong thời gian thực và đòi hỏi các bên tham gia có mặt cùng lúc (ví dụ: gọi điện, họp Zoom)."}, {"c": "C4", "d": 1, "q": "Email được xem là hình thức giao tiếp nào?", "o": ["Đồng bộ", "Bất đồng bộ", "Không phải giao tiếp số", "Chỉ dùng nội bộ"], "a": 1, "e": "Email là hình thức giao tiếp bất đồng bộ (Asynchronous) vì người nhận không cần phản hồi ngay lập tức, có độ trễ nhưng linh hoạt về thời gian."}, {"c": "C4", "d": 1, "q": "Công cụ quản lý dự án nào sử dụng phương pháp Kanban với bảng - danh sách - thẻ kéo thả?", "o": ["Trello", "Photoshop", "Zotero", "Audacity"], "a": 0, "e": "Trello sử dụng phương pháp Kanban với bảng - danh sách - thẻ kéo thả, phù hợp cho quản lý công việc đơn giản, trực quan."}, {"c": "C5", "d": 1, "q": "Có bao nhiêu loại hình nội dung số phổ biến được nêu trong tài liệu?", "o": ["3 loại", "5 loại", "7 loại", "10 loại"], "a": 1, "e": "Tài liệu nêu 5 loại nội dung số phổ biến: Văn bản, Hình ảnh, Âm thanh, Video và Đa phương tiện."}, {"c": "C5", "d": 1, "q": "CapCut là công cụ chuyên dùng để làm gì?", "o": ["Chỉnh sửa ảnh chuyên nghiệp", "Chỉnh sửa video, đặc biệt video ngắn", "Quản lý tài liệu tham khảo", "Kiểm tra đạo văn"], "a": 1, "e": "CapCut là công cụ chuyên dùng để chỉnh sửa video, đặc biệt phổ biến với các video ngắn cho mạng xã hội."}, {"c": "C5", "d": 1, "q": "Canva chủ yếu được dùng để làm gì?", "o": ["Lập trình web", "Thiết kế đồ họa, hình ảnh nhanh chóng", "Quản lý cơ sở dữ liệu", "Diệt virus"], "a": 1, "e": "Canva chủ yếu được dùng để thiết kế đồ họa và tạo hình ảnh nhanh chóng, thân thiện với người không chuyên."}, {"c": "C6", "d": 1, "q": "Đăng ảnh công khai lên Facebook là ví dụ của loại dấu chân số nào?", "o": ["Dấu chân số bị động", "Dấu chân số chủ động", "Không phải dấu chân số", "Danh tính số ẩn"], "a": 1, "e": "Đăng ảnh công khai lên Facebook là hành động chủ động chia sẻ dữ liệu, nên thuộc dấu chân số chủ động (active digital footprint), khác với dấu chân số bị động (dữ liệu bị thu thập không chủ ý như lịch sử tìm kiếm, IP)."}, {"c": "C6", "d": 1, "q": "Ransomware là loại phần mềm độc hại có đặc điểm gì?", "o": ["Chỉ hiển thị quảng cáo", "Mã hóa dữ liệu nạn nhân và đòi tiền chuộc", "Tăng tốc máy tính", "Là phần mềm diệt virus"], "a": 1, "e": "Ransomware là phần mềm độc hại mã hóa dữ liệu của nạn nhân rồi đòi tiền chuộc để khôi phục quyền truy cập."}, {"c": "C6", "d": 1, "q": "Quy tắc 20-20-20 áp dụng cho vấn đề sức khỏe nào?", "o": ["Đau lưng", "Mỏi mắt kỹ thuật số", "Mất ngủ", "Đau tay"], "a": 1, "e": "Quy tắc 20-20-20 (mỗi 20 phút nhìn xa 20 feet trong 20 giây) giúp giảm tình trạng mỏi mắt kỹ thuật số khi sử dụng thiết bị điện tử lâu."}, {"c": "C6", "d": 1, "q": "Đạo văn (Plagiarism) là hành vi nào sau đây?", "o": ["Trích dẫn đúng nguồn", "Sử dụng ý tưởng/từ ngữ người khác mà không ghi nhận nguồn", "Viết bài luận của chính mình", "Đọc sách tham khảo"], "a": 1, "e": "Đạo văn (Plagiarism) là hành vi sử dụng ý tưởng hoặc từ ngữ của người khác mà không ghi nhận nguồn gốc, vi phạm liêm chính học thuật."}, {"c": "C1", "d": 2, "q": "Loại máy tính nào có hiệu năng/giá thành tốt nhất và dễ nâng cấp nhất?", "o": ["Laptop", "Máy tính bảng", "Máy tính để bàn (Desktop)", "Smartphone"], "a": 2, "e": "Máy tính để bàn (Desktop) có hiệu năng/giá thành tốt nhất và dễ nâng cấp linh kiện (RAM, ổ cứng, card đồ họa...) nhất trong các loại thiết bị số cá nhân."}, {"c": "C1", "d": 2, "q": "E-Reader (máy đọc sách điện tử) sử dụng công nghệ màn hình nào để không gây mỏi mắt?", "o": ["OLED", "E-ink", "LCD thường", "Màn hình cong"], "a": 1, "e": "Màn hình E-ink dùng công nghệ hiển thị dựa trên các hạt mực điện tử, không phát ra ánh sáng nền như LCD/OLED nên không gây mỏi mắt khi đọc lâu."}, {"c": "C2", "d": 2, "q": "Toán tử \"filetype:pdf\" trong Google dùng để làm gì?", "o": ["Loại trừ file PDF khỏi kết quả", "Chỉ tìm kết quả là file PDF", "Tìm file PDF miễn phí", "Chuyển đổi trang web sang PDF"], "a": 1, "e": "Toán tử filetype:pdf giới hạn kết quả tìm kiếm chỉ trả về các tệp có định dạng PDF, giúp tìm tài liệu cụ thể nhanh hơn."}, {"c": "C2", "d": 2, "q": "VNU-LIC cung cấp quyền truy cập miễn phí cho sinh viên ĐHQGHN vào các cơ sở dữ liệu nào?", "o": ["Chỉ có sách giấy", "ScienceDirect, SpringerLink, IEEE Xplore", "Chỉ Facebook và Zalo", "Chỉ có tại thư viện vật lý"], "a": 1, "e": "VNU-LIC (Trung tâm Thông tin - Thư viện ĐHQGHN) cung cấp quyền truy cập miễn phí cho sinh viên vào các cơ sở dữ liệu học thuật lớn như ScienceDirect, SpringerLink, IEEE Xplore."}, {"c": "C2", "d": 2, "q": "CRAAP Test dùng để đánh giá điều gì?", "o": ["Tốc độ mạng Internet", "Độ tin cậy và chất lượng của thông tin", "Hiệu năng máy tính", "Chất lượng ảnh"], "a": 1, "e": "CRAAP Test là bộ tiêu chí dùng để đánh giá độ tin cậy và chất lượng của một nguồn thông tin trước khi sử dụng."}, {"c": "C2", "d": 2, "q": "Trong CRAAP Test, chữ \"A\" đầu tiên (Authority) đề cập đến yếu tố nào?", "o": ["Tính cập nhật của thông tin", "Tác giả / nguồn gốc thông tin", "Mục đích viết bài", "Độ dài bài viết"], "a": 1, "e": "Trong CRAAP Test, 'Authority' đề cập đến tác giả hoặc nguồn gốc của thông tin — ai là người viết, họ có đủ chuyên môn/uy tín hay không."}, {"c": "C2", "d": 2, "q": "Theo Luật Sở hữu trí tuệ Việt Nam, quyền tác giả phát sinh khi nào?", "o": ["Chỉ khi đăng ký với cơ quan nhà nước", "Tự động ngay khi tác phẩm được sáng tạo và định hình vật chất", "Sau khi xuất bản 6 tháng", "Chỉ áp dụng cho tác phẩm nước ngoài"], "a": 1, "e": "Theo Luật Sở hữu trí tuệ Việt Nam, quyền tác giả phát sinh tự động ngay khi tác phẩm được sáng tạo và định hình dưới một hình thức vật chất nhất định, không cần đăng ký với cơ quan nhà nước."}, {"c": "C2", "d": 3, "q": "Theo chuẩn trích dẫn Harvard, thành phần nào bắt buộc phải có trong trích dẫn trong bài (in-text citation)?", "o": ["Tên đầy đủ và số trang của toàn bộ sách", "Họ tác giả và năm xuất bản", "Chỉ cần tên tạp chí", "Không cần ghi gì trong bài, chỉ cần ở cuối"], "a": 1, "e": "Theo chuẩn trích dẫn Harvard, trích dẫn trong bài (in-text citation) bắt buộc phải có Họ tác giả và Năm xuất bản, ví dụ (Nguyễn, 2023)."}, {"c": "C3", "d": 2, "q": "Trong lịch sử AI, giai đoạn nào được gọi là mùa đông AI, gắn liền với hạn chế của Hệ chuyên gia (Expert Systems)?", "o": ["Giai đoạn 1950-1956", "Cuối 1980s - đầu 1990s", "Sau năm 2020", "Giai đoạn 2000-2010"], "a": 1, "e": "Mùa đông AI lần thứ hai xảy ra vào cuối thập niên 1980 - đầu 1990, gắn liền với những hạn chế của Hệ chuyên gia (Expert Systems) dựa trên luật cứng nhắc, tốn kém và khó mở rộng."}, {"c": "C3", "d": 2, "q": "Mối quan hệ phân cấp đúng giữa các khái niệm là gì?", "o": ["ML là tập con của DL, DL là tập con của AI", "AI là tập con của ML, ML là tập con của DL", "DL là tập con của ML, ML là tập con của AI", "Cả ba khái niệm độc lập, không liên quan"], "a": 2, "e": "Mối quan hệ phân cấp đúng là: DL là tập con của ML, và ML là tập con của AI (AI ⊃ ML ⊃ DL) — AI là khái niệm bao trùm rộng nhất."}, {"c": "C3", "d": 2, "q": "Học sâu (Deep Learning) khác Học máy (Machine Learning) truyền thống chủ yếu ở điểm nào?", "o": ["Học sâu không cần dữ liệu", "Học sâu sử dụng mạng nơ-ron nhân tạo có nhiều lớp ẩn (hidden layers)", "Học sâu chỉ dùng cho robot", "Học sâu không phải là một nhánh của AI"], "a": 1, "e": "Học sâu (Deep Learning) là một nhánh của Học máy, sử dụng mạng nơ-ron nhân tạo với nhiều lớp ẩn (hidden layers), giúp xử lý tốt dữ liệu phi cấu trúc như ảnh, âm thanh, văn bản."}, {"c": "C3", "d": 2, "q": "AI Tạo sinh (Generative AI) khác AI Phân biệt (Discriminative AI) ở điểm nào?", "o": ["AI Tạo sinh chỉ phân loại dữ liệu có sẵn", "AI Tạo sinh tạo ra nội dung mới, còn AI Phân biệt chỉ nhận dạng/phân loại", "Chúng hoàn toàn giống nhau", "AI Phân biệt mới có khả năng sáng tạo"], "a": 1, "e": "AI Tạo sinh (Generative AI) có khả năng tạo ra nội dung hoàn toàn mới (văn bản, ảnh, video...), trong khi AI Phân biệt (Discriminative AI) chỉ thực hiện phân loại hoặc dự đoán nhãn dựa trên dữ liệu có sẵn."}, {"c": "C3", "d": 2, "q": "Kiến trúc mạng nào ra đời năm 2017 đã mở đường cho các Mô hình Ngôn ngữ Lớn (LLM)?", "o": ["CNN (Convolutional Neural Network)", "Transformer", "RNN (Recurrent Neural Network)", "Perceptron"], "a": 1, "e": "Kiến trúc Transformer ra đời năm 2017 (bài báo 'Attention Is All You Need') là nền tảng kỹ thuật mở đường cho các Mô hình Ngôn ngữ Lớn (LLM) hiện nay như GPT, Gemini..."}, {"c": "C3", "d": 2, "q": "Hiện tượng AI tự tin đưa ra thông tin sai lệch, không có thật được gọi là gì?", "o": ["Bias (Thiên vị)", "Hallucination (Ảo giác)", "Overfitting", "Tokenization"], "a": 1, "e": "Hallucination (ảo giác) là hiện tượng AI tự tin đưa ra thông tin sai lệch hoặc không có thật, do bản chất mô hình hoạt động theo xác suất chứ không thực sự 'biết' sự thật."}, {"c": "C3", "d": 2, "q": "Kỹ thuật prompt nào yêu cầu AI \"suy nghĩ từng bước một\" để giải các bài toán logic phức tạp?", "o": ["Zero-shot Prompting", "Chain-of-Thought (CoT) Prompting", "Random Prompting", "Reverse Prompting"], "a": 1, "e": "Chain-of-Thought (CoT) Prompting là kỹ thuật yêu cầu AI trình bày quá trình suy nghĩ từng bước, giúp tăng độ chính xác khi giải các bài toán logic phức tạp."}, {"c": "C3", "d": 2, "q": "Zero-shot Prompting là gì?", "o": ["Đưa ra yêu cầu trực tiếp mà không kèm ví dụ nào", "Cung cấp hàng trăm ví dụ trước khi hỏi", "Prompt chỉ dùng cho hình ảnh", "Yêu cầu AI tự tạo câu hỏi"], "a": 0, "e": "Zero-shot Prompting là việc đưa ra yêu cầu trực tiếp cho AI mà không kèm theo bất kỳ ví dụ mẫu nào, khác với Few-shot Prompting (có kèm ví dụ)."}, {"c": "C3", "d": 2, "q": "Tham số Temperature trong AI tạo sinh dùng để điều chỉnh điều gì?", "o": ["Tốc độ phản hồi của server", "Mức độ sáng tạo/ngẫu nhiên của đầu ra", "Dung lượng bộ nhớ sử dụng", "Ngôn ngữ đầu ra"], "a": 1, "e": "Tham số Temperature trong AI tạo sinh dùng để điều chỉnh mức độ sáng tạo/ngẫu nhiên của đầu ra: thấp cho kết quả chính xác, an toàn; cao cho kết quả sáng tạo, đa dạng hơn."}, {"c": "C3", "d": 2, "q": "Công cụ AI nào nổi bật với khả năng luôn cung cấp trích dẫn nguồn, phù hợp cho nghiên cứu học thuật?", "o": ["Meta AI", "Perplexity AI", "Grok", "Midjourney"], "a": 1, "e": "Perplexity AI nổi bật vì luôn cung cấp trích dẫn nguồn kèm theo câu trả lời, rất phù hợp cho các nhu cầu nghiên cứu học thuật cần kiểm chứng."}, {"c": "C3", "d": 2, "q": "Grok (của xAI) có điểm mạnh đặc trưng nào?", "o": ["Tích hợp sâu với Microsoft 365", "Truy cập dữ liệu thời gian thực từ mạng xã hội X (Twitter)", "Chỉ hoạt động offline", "Chuyên biệt cho chỉnh sửa video"], "a": 1, "e": "Grok (của xAI) có điểm mạnh đặc trưng là truy cập dữ liệu thời gian thực từ mạng xã hội X (Twitter), giúp cập nhật thông tin mới nhất."}, {"c": "C4", "d": 2, "q": "Theo bảng lựa chọn phương thức giao tiếp, gửi thông báo chính thức xin nghỉ học cho giảng viên nên dùng kênh nào?", "o": ["Chat Messenger/Zalo", "Gọi điện đột xuất", "Email", "Đăng lên mạng xã hội"], "a": 2, "e": "Với các thông báo chính thức như xin nghỉ học gửi giảng viên, kênh phù hợp nhất là email vì tính trang trọng, có thể lưu trữ và làm bằng chứng khi cần."}, {"c": "C4", "d": 2, "q": "Cấu trúc tiêu đề email chuẩn được khuyến nghị trong tài liệu là gì?", "o": ["Chỉ cần ghi \"Xin chào\"", "[Mã môn học] - [Nội dung chính] - [Họ tên] - [MSSV]", "Không cần tiêu đề", "Viết hoa toàn bộ tiêu đề"], "a": 1, "e": "Cấu trúc tiêu đề email chuẩn được khuyến nghị là: [Mã môn học] - [Nội dung chính] - [Họ tên] - [MSSV], giúp người nhận dễ dàng nhận diện và xử lý."}, {"c": "C4", "d": 2, "q": "Ba yếu tố văn hóa nền tảng của hợp tác số hiệu quả là gì?", "o": ["Tốc độ - Chi phí - Số lượng", "Tin tưởng - Rõ ràng - Tôn trọng", "Cạnh tranh - Bí mật - Áp lực", "Hình thức - Nội dung - Ngân sách"], "a": 1, "e": "Ba yếu tố văn hóa nền tảng của hợp tác số hiệu quả là Tin tưởng - Rõ ràng - Tôn trọng, giúp nhóm làm việc gắn kết và minh bạch."}, {"c": "C4", "d": 2, "q": "So với Google Translate, DeepL thường được đánh giá vượt trội ở điểm nào?", "o": ["Hỗ trợ nhiều ngôn ngữ hơn", "Khả năng dịch tự nhiên, sát ngữ cảnh hơn cho các cặp ngôn ngữ phổ biến", "Miễn phí hoàn toàn không giới hạn", "Chỉ dịch được văn bản ngắn"], "a": 1, "e": "DeepL thường được đánh giá dịch tự nhiên và sát ngữ cảnh hơn Google Translate đối với các cặp ngôn ngữ phổ biến, dù hỗ trợ ít ngôn ngữ hơn."}, {"c": "C4", "d": 2, "q": "Công cụ Calendly được dùng để làm gì?", "o": ["Chỉnh sửa video", "Tạo link hẹn lịch tự động dựa trên thời gian rảnh", "Kiểm tra đạo văn", "Dịch thuật tài liệu"], "a": 1, "e": "Calendly là công cụ tạo link hẹn lịch tự động dựa trên khung thời gian rảnh của người dùng, giúp tiết kiệm thời gian trao đổi lịch hẹn qua lại."}, {"c": "C5", "d": 2, "q": "Giấy phép Creative Commons nào cho phép sử dụng thương mại nhưng phải ghi công tác giả gốc?", "o": ["CC BY-NC", "CC BY", "CC BY-ND", "Không có giấy phép nào"], "a": 1, "e": "Giấy phép CC BY cho phép người khác sử dụng (kể cả mục đích thương mại) miễn là ghi công tác giả gốc — đây là giấy phép Creative Commons linh hoạt nhất."}, {"c": "C5", "d": 2, "q": "CC BY-NC nghĩa là gì?", "o": ["Cấm mọi hình thức sử dụng", "Cho phép sử dụng cho mục đích phi thương mại, phải ghi công", "Chỉ dùng được trong giáo dục đại học", "Cho phép bán lại tự do"], "a": 1, "e": "CC BY-NC (NonCommercial) cho phép sử dụng tác phẩm cho mục đích phi thương mại và yêu cầu phải ghi công tác giả."}, {"c": "C5", "d": 2, "q": "Quy trình sáng tạo nội dung số theo tài liệu gồm mấy bước cốt lõi?", "o": ["3 bước", "4 bước", "6 bước", "10 bước"], "a": 2, "e": "Quy trình sáng tạo nội dung số theo tài liệu gồm 6 bước: Lên ý tưởng & Nghiên cứu → Lập kế hoạch → Sản xuất → Biên tập & Tinh chỉnh → Xuất bản & Phân phối → Đo lường & Tối ưu."}, {"c": "C5", "d": 2, "q": "Mục tiêu SMART trong lập kế hoạch nội dung số KHÔNG bao gồm yếu tố nào?", "o": ["Specific (Cụ thể)", "Measurable (Đo lường được)", "Secret (Bí mật)", "Time-bound (Có thời hạn)"], "a": 2, "e": "Mục tiêu SMART gồm Specific (cụ thể), Measurable (đo lường được), Achievable (khả thi), Relevant (liên quan) và Time-bound (có thời hạn) — không có yếu tố 'Secret' (bí mật)."}, {"c": "C5", "d": 2, "q": "Nguyên lý hoạt động cơ bản của các mô hình AI tạo ảnh (như Midjourney, DALL-E) thường dựa trên quá trình nào?", "o": ["Diffusion (khuếch tán từ nhiễu ngẫu nhiên)", "Sao chép trực tiếp ảnh có sẵn", "Quét mã QR", "Nén ảnh JPEG"], "a": 0, "e": "Các mô hình AI tạo ảnh như Midjourney, DALL-E hoạt động dựa trên nguyên lý Diffusion — khuếch tán dần từ nhiễu ngẫu nhiên để tạo ra hình ảnh hoàn chỉnh."}, {"c": "C6", "d": 2, "q": "VPN thường được khuyến nghị sử dụng trong trường hợp nào?", "o": ["Khi dùng Wi-Fi công cộng để bảo vệ dữ liệu", "Khi sạc pin điện thoại", "Khi in tài liệu", "Khi tắt máy tính"], "a": 0, "e": "VPN được khuyến nghị sử dụng khi kết nối Wi-Fi công cộng, giúp mã hóa đường truyền và bảo vệ dữ liệu cá nhân khỏi bị nghe lén."}, {"c": "C6", "d": 2, "q": "Trong các nguy cơ an ninh mạng, DDoS là kiểu tấn công nhắm đến mục tiêu gì?", "o": ["Đánh cắp mật khẩu cá nhân", "Làm quá tải và tê liệt hệ thống máy chủ", "Mã hóa dữ liệu để đòi tiền chuộc", "Theo dõi vị trí người dùng"], "a": 1, "e": "DDoS (Distributed Denial of Service) là kiểu tấn công làm quá tải hệ thống máy chủ bằng lượng truy cập khổng lồ, khiến dịch vụ bị tê liệt, không phục vụ được người dùng thật."}, {"c": "C6", "d": 2, "q": "Sáu giá trị cốt lõi của Liêm chính học thuật theo ICAI là gì?", "o": ["Trung thực, Tin cậy, Công bằng, Tôn trọng, Trách nhiệm, Dũng cảm", "Nhanh, Gọn, Rẻ, Đẹp, Bền, Tốt", "Sáng tạo, Đổi mới, Cạnh tranh, Lợi nhuận, Tăng trưởng, Hiệu quả", "Kỷ luật, Chăm chỉ, Thông minh, Nhanh nhẹn, Kiên trì, Tự tin"], "a": 0, "e": "Sáu giá trị cốt lõi của Liêm chính học thuật theo ICAI là: Trung thực, Tin cậy, Công bằng, Tôn trọng, Trách nhiệm và Dũng cảm."}, {"c": "C6", "d": 2, "q": "Gian lận hợp đồng (Contract Cheating) là hành vi nào?", "o": ["Tự làm bài tập một mình", "Thuê hoặc nhờ bên thứ ba hoàn thành bài tập rồi nộp như của mình", "Trích dẫn đúng quy cách", "Thảo luận nhóm về bài tập"], "a": 1, "e": "Gian lận hợp đồng (Contract Cheating) là hành vi thuê hoặc nhờ bên thứ ba hoàn thành bài tập/bài thi rồi nộp như thể là sản phẩm của chính mình, kể cả khi bên thứ ba đó là AI."}, {"c": "C6", "d": 2, "q": "Bịa đặt (Fabrication) trong liêm chính học thuật là hành vi nào?", "o": ["Tự tạo ra dữ liệu, số liệu hoặc trích dẫn không có thật", "Chép bài bạn trong giờ kiểm tra", "Diễn giải ý tưởng người khác có trích dẫn", "Sử dụng tài liệu được phép trong phòng thi"], "a": 0, "e": "Bịa đặt (Fabrication) là hành vi tự tạo ra dữ liệu, số liệu hoặc trích dẫn không có thật rồi đưa vào bài làm/nghiên cứu."}, {"c": "C6", "d": 2, "q": "Báo cáo tương đồng (Similarity Report) từ Turnitin có ý nghĩa gì?", "o": ["Là bằng chứng chắc chắn 100% về đạo văn", "Cho thấy sự trùng khớp văn bản, cần con người đánh giá thêm có phải đạo văn hay không", "Chỉ dùng để tính điểm số", "Không có giá trị tham khảo"], "a": 1, "e": "Báo cáo tương đồng (Similarity Report) từ Turnitin chỉ cho thấy mức độ trùng khớp văn bản với các nguồn khác; nó không đồng nghĩa với 'báo cáo đạo văn' — vẫn cần con người đánh giá thêm bối cảnh (trích dẫn hợp lệ, thuật ngữ chung...)."}, {"c": "C6", "d": 2, "q": "Nghị định 13/2023/NĐ-CP của Việt Nam quy định về vấn đề gì?", "o": ["Bảo vệ dữ liệu cá nhân", "Thuế thu nhập cá nhân", "Giao thông đường bộ", "An toàn thực phẩm"], "a": 0, "e": "Nghị định 13/2023/NĐ-CP của Việt Nam quy định về bảo vệ dữ liệu cá nhân, có hiệu lực từ tháng 7/2023."}, {"c": "C1", "d": 3, "q": "Sự kết hợp phần cứng nào được nhấn mạnh là nền tảng lý tưởng cho các tác vụ AI trên thiết bị cá nhân hiện đại?", "o": ["CPU không NPU + RAM DDR3 + HDD", "CPU tích hợp NPU + RAM DDR5 + SSD NVMe", "Chỉ cần GPU rời, không cần các thành phần khác", "CPU tốc độ thấp + RAM lớn + không cần SSD"], "a": 1, "e": "Sự kết hợp CPU tích hợp NPU + RAM DDR5 + SSD NVMe được xem là nền tảng phần cứng lý tưởng cho các tác vụ AI chạy trực tiếp trên thiết bị cá nhân hiện đại (xử lý nhanh, bộ nhớ tốc độ cao, lưu trữ tốc độ cao)."}, {"c": "C2", "d": 3, "q": "Vì sao một nghiên cứu về mô hình AI từ năm 2020 có thể bị đánh giá thấp điểm \"Currency\" trong CRAAP Test?", "o": ["Vì AI năm 2020 không tồn tại", "Vì lĩnh vực AI thay đổi nhanh, thông tin cũ có thể lỗi thời so với các đột phá như GPT-4/Gemini sau này", "Vì năm 2020 không có Internet", "Vì CRAAP Test không áp dụng cho công nghệ"], "a": 1, "e": "Một nghiên cứu AI từ 2020 có thể bị đánh giá thấp điểm Currency trong CRAAP Test vì lĩnh vực AI thay đổi rất nhanh — các đột phá như GPT-4, Gemini ra đời sau đó có thể khiến thông tin cũ trở nên lỗi thời."}, {"c": "C2", "d": 3, "q": "Điểm khác biệt cốt lõi giữa \"diễn giải\" (paraphrasing) đúng cách và đạo văn trá hình là gì?", "o": ["Diễn giải luôn đúng, không cần trích dẫn", "Diễn giải đúng cách vẫn phải trích dẫn nguồn gốc ý tưởng dù đã đổi từ ngữ", "Đạo văn chỉ xảy ra khi copy y nguyên 100%", "Diễn giải và đạo văn là một, không phân biệt được"], "a": 1, "e": "Diễn giải (paraphrasing) đúng cách vẫn phải trích dẫn nguồn gốc ý tưởng dù đã đổi từ ngữ, khác với đạo văn trá hình — vốn đổi từ ngữ nhưng cố tình không ghi nguồn để che giấu việc sao chép ý tưởng."}, {"c": "C3", "d": 3, "q": "Vì sao việc hiểu quy trình Tokenization - Embedding - Attention - Xác suất lại giúp viết prompt hiệu quả hơn?", "o": ["Vì nó không liên quan đến chất lượng prompt", "Vì hiểu cơ chế giúp ta cung cấp ngữ cảnh rõ ràng để dẫn dắt đúng cơ chế Attention và xác suất dự đoán của mô hình", "Vì cần biết lập trình Python để dùng AI", "Vì mô hình sẽ tự động đọc được suy nghĩ của người dùng"], "a": 1, "e": "Hiểu quy trình Tokenization - Embedding - Attention - Xác suất giúp người dùng cung cấp ngữ cảnh rõ ràng, từ đó dẫn dắt đúng cơ chế chú ý (Attention) và xác suất dự đoán của mô hình để có kết quả chính xác hơn."}, {"c": "C3", "d": 3, "q": "Trong mô hình CLEAR để viết prompt, chữ \"R\" đại diện cho yếu tố nào?", "o": ["Role (Vai trò)", "Refine (Tinh chỉnh)", "Result (Kết quả)", "Repeat (Lặp lại)"], "a": 1, "e": "Trong mô hình CLEAR (Context, roLe, Explicit instruction, Audience, Refine), chữ 'R' đại diện cho Refine — tức tinh chỉnh lại prompt dựa trên kết quả nhận được."}, {"c": "C3", "d": 3, "q": "Tại sao Temperature thấp (gần 0) phù hợp cho các tác vụ như trích xuất thông tin, tóm tắt thực tế?", "o": ["Vì nó làm mô hình chạy nhanh hơn", "Vì mô hình luôn chọn từ có xác suất cao nhất, cho kết quả an toàn, chính xác, ít ngẫu nhiên", "Vì nó tiết kiệm điện năng", "Vì nhiệt độ thấp giúp máy chủ mát hơn"], "a": 1, "e": "Temperature thấp (gần 0) khiến mô hình luôn chọn từ có xác suất cao nhất ở mỗi bước, cho kết quả ổn định, chính xác và ít ngẫu nhiên — phù hợp với trích xuất thông tin, tóm tắt thực tế."}, {"c": "C3", "d": 3, "q": "Thách thức \"Khoảng cách số\" (Digital Divide) trong bối cảnh AI đề cập đến vấn đề gì?", "o": ["Khoảng cách địa lý giữa các quốc gia", "Sự bất bình đẳng trong khả năng tiếp cận công cụ AI mạnh (thường trả phí) và kiến thức khai thác AI hiệu quả", "Khoảng cách thời gian phản hồi của chatbot", "Sự khác biệt giữa các ngôn ngữ lập trình"], "a": 1, "e": "Khoảng cách số (Digital Divide) trong bối cảnh AI đề cập đến sự bất bình đẳng trong khả năng tiếp cận các công cụ AI mạnh (thường trả phí) cũng như kiến thức để khai thác AI hiệu quả."}, {"c": "C4", "d": 3, "q": "Vì sao tài liệu nhấn mạnh việc lựa chọn phương tiện giao tiếp (đồng bộ/bất đồng bộ) là một \"lựa chọn chiến lược\" chứ không chỉ là kỹ thuật?", "o": ["Vì chúng có giá thành khác nhau", "Vì việc chọn kênh phản ánh sự tôn trọng thời gian người nhận và mức độ cấp bách của thông điệp, thể hiện trí tuệ cảm xúc", "Vì chỉ có email mới hợp pháp", "Vì họp video luôn tốt hơn email trong mọi trường hợp"], "a": 1, "e": "Việc lựa chọn phương tiện giao tiếp (đồng bộ/bất đồng bộ) là lựa chọn chiến lược vì nó phản ánh sự tôn trọng thời gian của người nhận và mức độ cấp bách của thông điệp, thể hiện trí tuệ cảm xúc của người gửi."}, {"c": "C5", "d": 3, "q": "Vì sao việc sao chép nguyên văn bản nháp do AI tạo ra để nộp bài bị xem là vi phạm liêm chính học thuật ngay cả khi không đạo văn từ nguồn khác?", "o": ["Vì AI luôn viết sai", "Vì bài làm không còn phản ánh đúng tư duy, dấu ấn cá nhân và sự đóng góp trí tuệ thực sự của người nộp bài", "Vì AI có bản quyền riêng đối với mọi câu trả lời", "Vì các trường học cấm hoàn toàn việc dùng máy tính"], "a": 1, "e": "Nộp nguyên văn bản nháp do AI tạo ra bị xem là vi phạm liêm chính học thuật vì bài làm không còn phản ánh đúng tư duy, dấu ấn cá nhân và sự đóng góp trí tuệ thực sự của người nộp bài, dù không sao chép từ nguồn nào khác."}, {"c": "C6", "d": 3, "q": "Vì sao tài liệu cho rằng lời khuyên an ninh mạng truyền thống \"để ý lỗi chính tả trong email lừa đảo\" không còn đủ hiệu quả?", "o": ["Vì email lừa đảo bây giờ luôn viết bằng tiếng Anh", "Vì AI có thể tạo ra các email lừa đảo với ngôn ngữ hoàn hảo, tự nhiên, khiến khó phát hiện qua lỗi chính tả như trước", "Vì email lừa đảo đã không còn tồn tại", "Vì các nhà cung cấp email đã tự động chặn hết"], "a": 1, "e": "Lời khuyên 'để ý lỗi chính tả' không còn đủ hiệu quả vì AI có thể tạo ra các email lừa đảo với ngôn ngữ hoàn hảo, tự nhiên, khiến người dùng khó phát hiện qua các dấu hiệu ngôn ngữ như trước đây."}, {"c": "C6", "d": 3, "q": "Sự khác biệt cốt lõi giữa \"đạo văn do AI hỗ trợ\" (AI-assisted plagiarism) và đạo văn truyền thống là gì?", "o": ["Không có sự khác biệt nào", "AI-assisted plagiarism là lạm dụng AI diễn giải lại nội dung có sẵn mà không có đóng góp tư duy thực sự, làm mờ ranh giới giữa hỗ trợ và gian lận", "Đạo văn do AI hỗ trợ không bị coi là vi phạm", "Chỉ đạo văn truyền thống mới bị xử lý kỷ luật"], "a": 1, "e": "Đạo văn do AI hỗ trợ (AI-assisted plagiarism) là việc lạm dụng AI để diễn giải lại nội dung có sẵn mà không có đóng góp tư duy thực sự, làm mờ ranh giới giữa 'hỗ trợ hợp lý' và 'gian lận'."}, {"c": "C6", "d": 3, "q": "Vì sao tài liệu cho rằng vấn đề liêm chính học thuật hiện nay đã chuyển từ \"sao chép\" sang câu hỏi \"ai là người thực sự đang tư duy\"?", "o": ["Vì học sinh không còn cần đến trí tuệ nữa", "Vì sự xuất hiện của gian lận hợp đồng và AI khiến việc \"thuê ngoài\" toàn bộ quá trình tư duy trở nên dễ dàng hơn là chỉ sao chép văn bản", "Vì các trường đã bỏ quy định về đạo văn", "Vì AI luôn tư duy đúng hơn con người"], "a": 1, "e": "Vấn đề liêm chính học thuật đã chuyển từ 'sao chép văn bản' sang câu hỏi 'ai là người thực sự đang tư duy', vì gian lận hợp đồng và AI khiến việc 'thuê ngoài' toàn bộ quá trình suy nghĩ trở nên dễ dàng hơn nhiều so với chỉ sao chép câu chữ."}, {"c": "C2", "d": 4, "q": "5 chữ cái trong mô hình CRAAP Test lần lượt là gì (đầy đủ theo thứ tự)?", "o": ["Currency, Relevance, Authority, Accuracy, Purpose", "Content, Research, Author, Analysis, Publication", "Currency, Reliability, Authenticity, Accuracy, Purpose", "Clarity, Relevance, Authority, Accuracy, Précis"], "a": 0, "e": "5 chữ cái của CRAAP Test theo đúng thứ tự là: Currency (cập nhật), Relevance (liên quan), Authority (tác giả/nguồn), Accuracy (chính xác), Purpose (mục đích)."}, {"c": "C3", "d": 4, "q": "Sắp xếp đúng thứ tự các mốc lịch sử AI sau: (1) AlphaGo thắng Lee Sedol, (2) Hội nghị Dartmouth, (3) ChatGPT ra mắt, (4) Turing Test được đề xuất, (5) Kiến trúc Transformer ra đời.", "o": ["4-2-1-5-3", "2-4-1-3-5", "1-2-3-4-5", "3-1-2-5-4"], "a": 0, "e": "Thứ tự đúng theo thời gian là: Turing Test (1950) → Hội nghị Dartmouth (1956) → AlphaGo thắng Lee Sedol (2016) → Transformer (2017) → ChatGPT ra mắt (cuối 2022), tức 4-2-1-5-3."}, {"c": "C3", "d": 4, "q": "Phân biệt AI, ML, DL: câu nào mô tả ĐÚNG NHẤT mối quan hệ và bản chất của ba khái niệm?", "o": ["AI, ML, DL là ba lĩnh vực hoàn toàn tách biệt không liên quan", "AI là lĩnh vực rộng nhất; ML là nhánh của AI học từ dữ liệu thay vì luật tường minh; DL là nhánh chuyên sâu của ML dùng mạng nơ-ron nhiều lớp ẩn", "DL là lĩnh vực rộng nhất bao trùm AI và ML", "ML chỉ là một ứng dụng của DL, không phải một phương pháp riêng"], "a": 1, "e": "AI là lĩnh vực tổng quát và rộng nhất; Học máy (ML) là một nhánh của AI giúp máy tự học từ dữ liệu thay vì lập trình luật tường minh; Học sâu (DL) là nhánh chuyên sâu hơn của ML, dùng mạng nơ-ron nhiều lớp ẩn."}, {"c": "C3", "d": 4, "q": "Vì sao LLM có thể tạo ra \"ảo giác\" (hallucination)? Đâu là giải thích chính xác nhất theo nguyên lý hoạt động của mô hình?", "o": ["Vì máy chủ bị lỗi phần cứng", "Vì LLM hoạt động theo cơ chế dự đoán xác suất từ tiếp theo hợp lý nhất chứ không thực sự \"biết\" sự thật khách quan", "Vì người dùng viết prompt sai chính tả", "Vì AI cố tình nói dối người dùng"], "a": 1, "e": "LLM tạo ra ảo giác (hallucination) vì bản chất mô hình hoạt động theo cơ chế dự đoán xác suất từ tiếp theo hợp lý nhất dựa trên dữ liệu huấn luyện, chứ không thực sự 'biết' hay kiểm chứng sự thật khách quan."}, {"c": "C6", "d": 4, "q": "Theo khung đạo đức sử dụng AI có trách nhiệm trong học thuật, 5 nguyên tắc cốt lõi là gì?", "o": ["Nhanh, Rẻ, Tiện, Hiệu quả, Phổ biến", "Minh bạch, Trách nhiệm, Trung thực/Nguyên bản, Giám sát của con người, Bảo vệ dữ liệu", "Sáng tạo, Cạnh tranh, Lợi nhuận, Tốc độ, Bảo mật", "Chính xác, Ngắn gọn, Dễ hiểu, Thẩm mỹ, Đa dạng"], "a": 1, "e": "Khung đạo đức sử dụng AI có trách nhiệm trong học thuật gồm 5 nguyên tắc cốt lõi: Minh bạch, Trách nhiệm, Trung thực/Nguyên bản, Giám sát của con người và Bảo vệ dữ liệu."}, {"c": "C6", "d": 4, "q": "Việc nộp một bài luận được ChatGPT viết gần như hoàn toàn, chỉ chỉnh sửa vài từ, được xem là vi phạm liêm chính học thuật ở dạng nào là chính xác nhất?", "o": ["Không vi phạm gì vì có chỉnh sửa", "Được xem như một dạng gian lận hợp đồng (thuê ngoài quá trình tư duy) và vi phạm nguyên tắc trung thực/nguyên bản", "Chỉ là đạo văn nhẹ, không đáng kể", "Đây là cách sử dụng AI được khuyến khích hoàn toàn"], "a": 1, "e": "Nộp một bài luận do ChatGPT viết gần như hoàn toàn (chỉ sửa vài từ) được xem như một dạng gian lận hợp đồng (thuê ngoài quá trình tư duy) và vi phạm nguyên tắc trung thực/nguyên bản trong liêm chính học thuật."}, {"c": "C6", "d": 4, "q": "Phân biệt: đâu là hành vi ĐƯỢC PHÉP khi dùng AI hỗ trợ học thuật theo nguyên tắc trách nhiệm đã nêu?", "o": ["Dùng AI viết toàn bộ bài luận rồi nộp nguyên văn", "Dùng AI để brainstorm ý tưởng ban đầu, sau đó tự nghiên cứu và phát triển lập luận dựa trên nguồn học thuật đáng tin cậy", "Dùng AI để bịa số liệu khảo sát cho báo cáo", "Dùng AI để làm bài thi hộ người khác"], "a": 1, "e": "Hành vi được phép khi dùng AI hỗ trợ học thuật là dùng AI để brainstorm ý tưởng ban đầu, sau đó tự nghiên cứu và phát triển lập luận dựa trên các nguồn học thuật đáng tin cậy — AI chỉ hỗ trợ, con người vẫn là người tư duy chính."}, {"c": "C3", "d": 4, "q": "Trong các công cụ AI, nếu cần MỘT công cụ vừa tích hợp sâu vào Word/Excel/PowerPoint/Outlook/Teams, công cụ phù hợp nhất là gì?", "o": ["Perplexity AI", "Grok", "Microsoft Copilot", "Meta AI"], "a": 2, "e": "Microsoft Copilot là công cụ AI tích hợp sâu nhất vào bộ Microsoft 365 (Word, Excel, PowerPoint, Outlook, Teams), phù hợp khi cần một công cụ duy nhất làm việc xuyên suốt trong hệ sinh thái này."}, {"c": "C6", "d": 4, "q": "Quy tắc 3-2-1 trong sao lưu dữ liệu và biện pháp 2FA đều nhằm mục tiêu chung nào trong an toàn số?", "o": ["Tăng tốc độ máy tính", "Bảo vệ tính toàn vẹn, sẵn có và an toàn của dữ liệu/tài khoản trước rủi ro mất mát hoặc bị chiếm đoạt", "Giảm chi phí mua thiết bị mới", "Tăng dung lượng lưu trữ miễn phí"], "a": 1, "e": "Quy tắc 3-2-1 (sao lưu dữ liệu) và 2FA (xác thực hai yếu tố) đều nhằm bảo vệ tính toàn vẹn, sẵn có và an toàn của dữ liệu/tài khoản trước rủi ro mất mát hoặc bị chiếm đoạt."}, {"c": "C2", "d": 4, "q": "Điểm mấu chốt phân biệt \"Thông tin\" và \"Tri thức\" trong mô hình DIKW mà đề thi hay khai thác là gì?", "o": ["Thông tin trả lời \"ai, cái gì, ở đâu, khi nào\"; Tri thức trả lời \"tại sao, như thế nào, nên làm gì\" để ra quyết định", "Thông tin và Tri thức là một khái niệm giống hệt nhau", "Tri thức luôn có trước Thông tin", "Thông tin chỉ tồn tại dưới dạng số, Tri thức chỉ tồn tại trong sách"], "a": 0, "e": "Trong mô hình DIKW, Thông tin trả lời các câu hỏi 'ai, cái gì, ở đâu, khi nào', còn Tri thức trả lời 'tại sao, như thế nào' để giúp con người ra quyết định — đây là điểm mấu chốt đề thi hay khai thác."}, {"c": "C4", "d": 2, "q": "Trong quản lý dự án nhóm, công cụ nào phù hợp nhất khi cần nhiều chế độ xem (danh sách, lịch, timeline) và quản lý sự phụ thuộc giữa các nhiệm vụ phức tạp?", "o": ["Trello", "Asana", "Notepad", "Paint"], "a": 1, "e": "Asana phù hợp khi nhóm cần nhiều chế độ xem (danh sách, lịch, timeline) và quản lý sự phụ thuộc giữa các nhiệm vụ phức tạp, mạnh hơn Trello (vốn đơn giản, chỉ Kanban)."}, {"c": "C4", "d": 3, "q": "Vì sao tài liệu khuyến nghị nên xử lý bất đồng quan điểm nhóm qua cuộc gọi video thay vì nhắn tin?", "o": ["Vì gọi video miễn phí hơn nhắn tin", "Vì giọng điệu và nét mặt qua video giúp làm rõ ý định, giảm nguy cơ hiểu lầm so với văn bản thuần túy", "Vì nhắn tin bị cấm trong công việc nhóm", "Vì gọi video luôn nhanh hơn nhắn tin"], "a": 1, "e": "Tài liệu khuyến nghị xử lý bất đồng quan điểm nhóm qua video vì giọng điệu và nét mặt giúp làm rõ ý định, giảm nguy cơ hiểu lầm so với văn bản thuần túy (vốn dễ bị đọc sai sắc thái)."}, {"c": "C5", "d": 2, "q": "Trong 6 bước quy trình sáng tạo nội dung số, bước cuối cùng (Đo lường và Tối ưu) chủ yếu dựa vào yếu tố nào?", "o": ["Cảm nhận cá nhân của người viết", "Các chỉ số hiệu quả (KPIs) như lượt xem, lượt thích, chia sẻ, bình luận", "Số lượng ảnh minh họa", "Độ dài của bài viết"], "a": 1, "e": "Bước cuối cùng của quy trình sáng tạo nội dung số (Đo lường và Tối ưu) chủ yếu dựa vào các chỉ số hiệu quả (KPIs) như lượt xem, lượt thích, chia sẻ, bình luận để đánh giá và cải thiện nội dung."}, {"c": "C5", "d": 3, "q": "Vì sao hình ảnh do AI tạo ra vẫn cần được kiểm tra bản quyền thương mại trước khi dùng cho dự án chính thức?", "o": ["Vì AI luôn vi phạm bản quyền", "Vì điều khoản sử dụng về quyền thương mại khác nhau tùy công cụ và cần minh bạch về việc dùng AI khi có yêu cầu", "Vì ảnh AI không được phép sử dụng trong bất kỳ trường hợp nào", "Vì ảnh AI luôn có chất lượng thấp"], "a": 1, "e": "Hình ảnh do AI tạo ra vẫn cần kiểm tra bản quyền thương mại vì điều khoản sử dụng về quyền thương mại khác nhau tùy từng công cụ (Midjourney, DALL-E, Stable Diffusion...), và cần minh bạch về việc đã dùng AI khi có yêu cầu."}];
+
+const CHAPTER_NAMES = {
+  C1: "C1 · Máy tính & TB ngoại vi",
+  C2: "C2 · Khai thác dữ liệu",
+  C3: "C3 · Tổng quan AI",
+  C4: "C4 · Giao tiếp & hợp tác",
+  C5: "C5 · Sáng tạo nội dung số",
+  C6: "C6 · An toàn & liêm chính"
+};
+const CHAPTER_ORDER = ["ALL","C1","C2","C3","C4","C5","C6"];
+
+/* ================= NAV / VIEW SWITCH ================= */
+function switchView(name){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ================= CHAPTER ACCORDION ================= */
+function toggleChap(id){
+  const el = document.getElementById('chap-' + id);
+  el.classList.toggle('open');
+}
+
+/* ================= COUNTDOWN ================= */
+const EXAM_TARGET = new Date(2026, 6, 8, 9, 0, 0); // month is 0-indexed: 6 = July
+function updateCountdown(){
+  const now = new Date();
+  const diff = EXAM_TARGET - now;
+  const grid = document.getElementById('cd-grid');
+  if(diff <= 0){
+    grid.innerHTML = '<div class="cd-done" style="grid-column:1/-1;">🎓 Đã đến giờ thi — Chúc bạn làm bài thật tốt!</div>';
+    return;
+  }
+  const d = Math.floor(diff / (1000*60*60*24));
+  const h = Math.floor((diff / (1000*60*60)) % 24);
+  const m = Math.floor((diff / (1000*60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+  document.getElementById('cd-days').textContent = d;
+  document.getElementById('cd-hours').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-mins').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-secs').textContent = String(s).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ================= QUIZ SETUP ================= */
+let selectedScope = "ALL"; // chapter code or ALL
+let selectedDiffs = new Set(); // empty = all difficulties
+
+function buildSetupUI(){
+  const scopeGrid = document.getElementById('scope-grid');
+  scopeGrid.innerHTML = '';
+  CHAPTER_ORDER.forEach(code => {
+    const count = code === 'ALL' ? QUIZ_DATA.length : QUIZ_DATA.filter(q => q.c === code).length;
+    const label = code === 'ALL' ? 'Tất cả (Đề tổng hợp)' : CHAPTER_NAMES[code];
+    const div = document.createElement('div');
+    div.className = 'scope-chip' + (code === selectedScope ? ' selected' : '');
+    div.dataset.code = code;
+    div.innerHTML = '<div class="sc-name">' + label + '</div><div class="sc-count">' + count + ' câu</div>';
+    div.onclick = () => { selectedScope = code; buildSetupUI(); };
+    scopeGrid.appendChild(div);
+  });
+
+  const diffRow = document.getElementById('diff-row');
+  diffRow.innerHTML = '';
+  const diffLabels = {1:'★ Dễ', 2:'★★ TB', 3:'★★★ Khó', 4:'★★★★ Trọng tâm'};
+  [1,2,3,4].forEach(d => {
+    const div = document.createElement('div');
+    div.className = 'diff-chip' + (selectedDiffs.has(d) ? ' selected' : '');
+    div.textContent = diffLabels[d];
+    div.onclick = () => {
+      if(selectedDiffs.has(d)) selectedDiffs.delete(d); else selectedDiffs.add(d);
+      buildSetupUI();
+    };
+    diffRow.appendChild(div);
+  });
+}
+buildSetupUI();
+
+/* ================= QUIZ ENGINE ================= */
+let QUIZ = [];
+let current = 0;
+let score = 0;
+let answered = false;
+let userAnswers = [];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(){
+  let pool = QUIZ_DATA.filter(q => selectedScope === 'ALL' || q.c === selectedScope);
+  if(selectedDiffs.size > 0){
+    pool = pool.filter(q => selectedDiffs.has(q.d));
+  }
+  if(pool.length === 0){
+    document.getElementById('scope-warning').style.display = 'block';
+    return;
+  }
+  document.getElementById('scope-warning').style.display = 'none';
+  QUIZ = shuffle(pool);
+  current = 0;
+  score = 0;
+  answered = false;
+  userAnswers = [];
+
+  document.getElementById('quiz-setup').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-run').style.display = 'block';
+  renderQuestion();
+}
+
+function restartSetup(){
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-run').style.display = 'none';
+  document.getElementById('quiz-setup').style.display = 'block';
+  buildSetupUI();
+}
+
+function quitQuiz(){
+  if(confirm('Thoát bài làm hiện tại? Kết quả sẽ không được lưu.')){
+    restartSetup();
+  }
+}
+
+function renderQuestion(){
+  answered = false;
+  const item = QUIZ[current];
+  document.getElementById('progress-bar').style.width = (current/QUIZ.length*100) + '%';
+  document.getElementById('q-counter').textContent = 'Câu ' + (current+1) + '/' + QUIZ.length;
+  document.getElementById('live-score').textContent = score + '/' + QUIZ.length;
+  document.getElementById('chapter-tag').innerHTML = '<span class="tag tag-' + item.c.toLowerCase() + '">' + CHAPTER_NAMES[item.c] + '</span>';
+  document.getElementById('diff-stars').textContent = '★'.repeat(item.d) + '☆'.repeat(4-item.d);
+  document.getElementById('question-text').textContent = item.q;
+  document.getElementById('explain-box').style.display = 'none';
+  document.getElementById('explain-text').textContent = '';
+  document.getElementById('next-btn').classList.remove('active');
+  document.getElementById('next-btn').textContent = (current === QUIZ.length-1) ? 'Xem kết quả →' : 'Câu tiếp theo →';
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  item.o.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => selectOption(idx);
+    container.appendChild(btn);
+  });
+}
+
+function selectOption(idx){
+  if(answered) return;
+  answered = true;
+  const item = QUIZ[current];
+  const isCorrect = idx === item.a;
+  if(isCorrect) score++;
+
+  userAnswers.push({ chosen: idx, correct: item.a, q: item.q, options: item.o, chapter: item.c, explain: item.e });
+
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((el, i) => {
+    el.classList.add('disabled');
+    if(i === item.a) el.classList.add('correct');
+    else if(i === idx) el.classList.add('wrong');
+  });
+
+  document.getElementById('live-score').textContent = score + '/' + QUIZ.length;
+  document.getElementById('explain-box').style.display = 'block';
+  document.getElementById('explain-text').textContent = item.e;
+  document.getElementById('next-btn').classList.add('active');
+}
+
+function nextQuestion(){
+  if(!answered) return;
+  current++;
+  if(current >= QUIZ.length){
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult(){
+  document.getElementById('quiz-run').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  document.getElementById('final-score').textContent = score + '/' + QUIZ.length;
+
+  const pct = QUIZ.length ? (score / QUIZ.length * 100) : 0;
+  let desc = '';
+  if(pct >= 90) desc = 'Xuất sắc! Bạn đã nắm rất chắc kiến thức.';
+  else if(pct >= 75) desc = 'Tốt! Chỉ còn vài lỗ hổng nhỏ cần ôn lại.';
+  else if(pct >= 60) desc = 'Khá ổn, nhưng nên xem lại các câu sai bên dưới.';
+  else desc = 'Cần ôn tập kỹ hơn — hãy xem lại phần tóm tắt lý thuyết và làm lại.';
+  document.getElementById('final-desc').textContent = desc;
+
+  const chaptersInvolved = [...new Set(QUIZ.map(q => q.c))];
+  const chapterStats = {};
+  chaptersInvolved.forEach(c => chapterStats[c] = {correct:0,total:0});
+  userAnswers.forEach(ua => {
+    chapterStats[ua.chapter].total++;
+    if(ua.chosen === ua.correct) chapterStats[ua.chapter].correct++;
+  });
+
+  const cb = document.getElementById('chapter-breakdown');
+  cb.innerHTML = '<div style="font-weight:700;margin-bottom:10px;color:var(--text);">Kết quả theo chương</div>';
+  chaptersInvolved.forEach(c => {
+    const s = chapterStats[c];
+    const pctBar = s.total ? (s.correct/s.total*100) : 0;
+    cb.innerHTML += '<div class="cb-row"><div class="cb-label">' + CHAPTER_NAMES[c] + '</div>' +
+      '<div class="cb-bar-outer"><div class="cb-bar-inner" style="width:' + pctBar + '%"></div></div>' +
+      '<div class="cb-frac">' + s.correct + '/' + s.total + '</div></div>';
+  });
+
+  const reviewList = document.getElementById('review-list');
+  reviewList.style.display = 'none';
+  document.getElementById('review-btn').textContent = 'Xem lại đáp án chi tiết';
+  reviewList.innerHTML = '';
+  userAnswers.forEach((ua, i) => {
+    const isCorrect = ua.chosen === ua.correct;
+    reviewList.innerHTML += '<div class="review-item"><div class="q">Câu ' + (i+1) + '. ' + ua.q + '</div>' +
+      (isCorrect
+        ? '<div class="ans-line ok">✓ Bạn chọn đúng: ' + ua.options[ua.chosen] + '</div>'
+        : '<div class="ans-line no">✗ Bạn chọn: ' + ua.options[ua.chosen] + '</div>' +
+          '<div class="ans-line ok">✓ Đáp án đúng: ' + ua.options[ua.correct] + '</div>') +
+      '<div class="rex">' + ua.explain + '</div></div>';
+  });
+}
+
+function toggleReview(){
+  const el = document.getElementById('review-list');
+  const btn = document.getElementById('review-btn');
+  if(el.style.display === 'none'){
+    el.style.display = 'block';
+    btn.textContent = 'Ẩn đáp án chi tiết';
+  } else {
+    el.style.display = 'none';
+    btn.textContent = 'Xem lại đáp án chi tiết';
+  }
+}
+
+</script>
+</body>
+</html>
